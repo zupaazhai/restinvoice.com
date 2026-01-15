@@ -1,4 +1,4 @@
-import { Key, LayoutTemplate, Menu } from "lucide-react";
+import { FolderHeart, Key, LayoutTemplate, Menu } from "lucide-react";
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { Button } from "../ui/button";
@@ -17,6 +17,7 @@ interface HeaderProps {
 export function Header({ credits = 1000, userName, userEmail, avatarUrl }: HeaderProps) {
 	const navItems = [
 		{ label: "Templates", href: "/templates", icon: LayoutTemplate },
+		{ label: "My Templates", href: "/my-templates", icon: FolderHeart },
 		{ label: "API Keys", href: "/api-keys", icon: Key },
 	];
 
