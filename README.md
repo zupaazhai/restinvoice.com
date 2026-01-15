@@ -94,11 +94,17 @@ restinvoice/
 **Purpose**: User dashboard for account management, template design, API key management, and credit purchases.
 
 **Technology Stack**:
-- **React 18+** - Component-based UI framework
-- **TailwindCSS** - Utility-first CSS framework
+- **React 19+** - Component-based UI framework
+- **TailwindCSS 4** - Utility-first CSS framework
 - **Shadcn UI** - Pre-built accessible components
-- **React Router** - Client-side routing
-- **TanStack Query** - Server state management
+- **React Router 7** - Client-side routing
+- **Biome** - Linting, formatting, and type checking
+
+**Responsive Design**:
+- Mobile-first approach with breakpoints at `sm:`, `md:`, `lg:`, `xl:`
+- Collapsible sidebars using Sheet component on mobile devices
+- Icon-only buttons on mobile, expanded with labels on desktop
+- Full-height editors with dynamic viewport calculations for optimal mobile experience
 
 **Key Features**:
 
@@ -117,13 +123,20 @@ restinvoice/
 /login                  → Authentication
 /register               → User registration
 /dashboard              → Main dashboard (protected)
-/templates              → Template gallery
-/templates/:id          → Template detail/editor
-/templates/new          → Create new template
+/templates              → Template gallery (system templates)
+/my-templates           → User's custom templates
+/my-templates/:id/edit  → Template editor with live preview
 /api-keys               → API key management
 /billing                → Credit purchase & history
 /settings               → Account settings
 ```
+
+**Design System**:
+See `web/design-concept.md` for detailed UI/UX standards including:
+- Spacing, layout, and border radius rules
+- Semantic color tokens (no literal scales)
+- Header and component patterns
+- Mobile-first responsive guidelines
 
 ---
 
