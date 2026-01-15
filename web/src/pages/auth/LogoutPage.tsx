@@ -1,15 +1,12 @@
+import { useClerk } from "@clerk/clerk-react";
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 
 export function LogoutPage() {
-	const navigate = useNavigate();
+	const { signOut } = useClerk();
 
 	useEffect(() => {
-		// Clear mock auth token
-		localStorage.removeItem("auth_mock_token");
-		// Redirect to login
-		navigate("/login", { replace: true });
-	}, [navigate]);
+		signOut({ redirectUrl: "/" });
+	}, [signOut]);
 
-	return null; // Or a spinner/loading state if desired
+	return null;
 }
