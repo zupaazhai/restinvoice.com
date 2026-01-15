@@ -1,4 +1,5 @@
 import { LogOut, Settings, User } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,6 +29,8 @@ export function UserMenu({
 		.toUpperCase()
 		.slice(0, 2);
 
+	const navigate = useNavigate();
+
 	const handleSettingClick = () => {
 		console.log("Navigate to settings");
 	};
@@ -37,7 +40,7 @@ export function UserMenu({
 	};
 
 	const handleLogoutClick = () => {
-		console.log("Logout");
+		navigate("/logout");
 	};
 
 	return (
