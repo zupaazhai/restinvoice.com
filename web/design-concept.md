@@ -5,6 +5,37 @@
 - **Navigation:** Use a **Top Navigation Bar** pattern.
 - **Compactness:** Since the menu is small (2-3 items), prioritize high-density information display in the main content area.
 
+### **Page Structure Rules**
+All pages rendered inside `AuthenticatedLayout` inherit padding and max-width from the layout's `<main>` container:
+```tsx
+<main className="mx-auto max-w-7xl px-4 py-6">{children}</main>
+```
+
+**CRITICAL:** Pages must NOT define their own padding or max-width wrappers. Follow this pattern:
+
+```tsx
+// ✅ CORRECT - Use space-y-6 wrapper, inherit padding from layout
+export function MyPage() {
+  return (
+    <div className="space-y-6">
+      <PageHeader ... />
+      {/* Content here */}
+    </div>
+  );
+}
+
+// ❌ WRONG - Custom padding/max-width creates inconsistency
+export function MyPage() {
+  return (
+    <div className="px-6 py-4 max-w-7xl mx-auto">  {/* DON'T DO THIS */}
+      ...
+    </div>
+  );
+}
+```
+
+**Why this matters:** At 1600px+ widths, nested max-width containers or different padding values cause misaligned content between pages.
+
 ## 2. Mobile-First Responsive Design
 
 ### **Core Philosophy**

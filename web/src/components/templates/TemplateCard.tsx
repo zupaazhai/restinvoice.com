@@ -1,14 +1,17 @@
 import { Check, Copy } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardTitle } from "@/components/ui/card";
 import type { Template } from "@/types/template.types";
 
 interface TemplateCardProps {
 	template: Template;
+	/** Optional link URL - when provided, clicking the thumbnail navigates to this URL */
+	linkTo?: string;
 }
 
-export function TemplateCard({ template }: TemplateCardProps) {
+export function TemplateCard({ template, linkTo }: TemplateCardProps) {
 	const [copied, setCopied] = useState(false);
 
 	const handleCopy = async () => {
@@ -21,20 +24,27 @@ export function TemplateCard({ template }: TemplateCardProps) {
 		}
 	};
 
+	const thumbnailContent = (
+		<div className="aspect-[4/3] bg-gradient-to-br from-primary/10 via-primary/5 to-background flex items-center justify-center">
+			<div className="text-center space-y-2 p-6">
+				<div className="text-4xl font-bold text-primary/20">
+					{template.type === "invoice" ? "📄" : "🧾"}
+				</div>
+				<p className="text-xs text-muted-foreground uppercase tracking-wider">{template.type}</p>
+			</div>
+		</div>
+	);
+
 	return (
 		<Card className="overflow-hidden transition-all hover:shadow-lg hover:border-primary/50 py-0 gap-4">
 			<CardContent className="p-0">
-				{/* Thumbnail Preview Area */}
-				<div className="aspect-[4/3] bg-gradient-to-br from-primary/10 via-primary/5 to-background flex items-center justify-center">
-					<div className="text-center space-y-2 p-6">
-						<div className="text-4xl font-bold text-primary/20">
-							{template.type === "invoice" ? "📄" : "🧾"}
-						</div>
-						<p className="text-xs text-muted-foreground uppercase tracking-wider">
-							{template.type}
-						</p>
-					</div>
-				</div>
+				{linkTo ? (
+					<Link to={linkTo} className="block cursor-pointer">
+						{thumbnailContent}
+					</Link>
+				) : (
+					thumbnailContent
+				)}
 			</CardContent>
 
 			<CardFooter className="flex-col items-start gap-2 p-0 px-3 pb-3">

@@ -40,6 +40,7 @@ export function MyTemplatesPage() {
 				templates={mockUserTemplates}
 				emptyStateTitle="No Custom Templates Yet"
 				emptyStateDescription="Create your first template by customizing a system template."
+				editable
 			/>
 		</div>
 	);

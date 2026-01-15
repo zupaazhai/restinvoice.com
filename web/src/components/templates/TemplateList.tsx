@@ -19,12 +19,15 @@ interface TemplateListProps {
 	templates: Template[];
 	emptyStateTitle?: string;
 	emptyStateDescription?: string;
+	/** When true, clicking template thumbnail navigates to edit page */
+	editable?: boolean;
 }
 
 export function TemplateList({
 	templates,
 	emptyStateTitle = "No Templates Found",
 	emptyStateDescription = "Try adjusting your search or filter to find what you're looking for.",
+	editable = false,
 }: TemplateListProps) {
 	const [searchQuery, setSearchQuery] = useState("");
 	const [typeFilter, setTypeFilter] = useState<FilterType>("all");
@@ -44,7 +47,7 @@ export function TemplateList({
 	return (
 		<div className="space-y-6">
 			{/* Filter Bar */}
-			<div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+			<div className="flex flex-col gap-4 md:flex-row md:items-center">
 				{/* Type Filter Tabs */}
 				<Tabs value={typeFilter} onValueChange={(value) => setTypeFilter(value as FilterType)}>
 					<TabsList>
@@ -70,7 +73,11 @@ export function TemplateList({
 			{filteredTemplates.length > 0 ? (
 				<div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 md:gap-6">
 					{filteredTemplates.map((template) => (
-						<TemplateCard key={template.id} template={template} />
+						<TemplateCard
+							key={template.id}
+							template={template}
+							linkTo={editable ? `/my-templates/${template.id}/edit` : undefined}
+						/>
 					))}
 				</div>
 			) : (
