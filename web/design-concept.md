@@ -80,7 +80,89 @@
   - Charts: `text-chart-1`, `text-chart-2`, `text-chart-3`, `text-chart-4`, `text-chart-5` (and equivalent `bg-*`, `border-*`)
   - Shadows: `shadow-2xs`, `shadow-xs`, `shadow-sm`, `shadow-md`, `shadow-lg`, `shadow-xl`, `shadow-2xl`
 
-## 4. Component Standards
+## 4. Header Components
+
+### **Application Header (Top Navigation)**
+The main application header (`components/layout/Header.tsx`) provides global navigation and user context.
+
+**Structure:**
+- **Logo (Left):** Clickable link to home route (`/`)
+- **Navigation (Center):** Desktop navigation items with icons, hidden on mobile
+- **Actions (Right):** Credit display, user menu, and mobile menu trigger
+
+**Navigation Pattern:**
+- Use `NavLink` from `react-router-dom` for navigation items
+- Active state styling: `bg-accent text-accent-foreground`
+- Inactive state: `text-muted-foreground`
+- Each nav item must have: `[Icon] + [Label]`
+
+**Mobile Navigation:**
+- Use Shadcn `Sheet` component (right side)
+- Trigger: Hamburger menu button (visible on `md` breakpoint and below)
+- Same navigation items with consistent styling
+- Minimum touch target: `min-h-11` for all links
+
+**Code Example:**
+```tsx
+<NavLink
+  to="/templates"
+  className={({ isActive }) =>
+    `flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground ${
+      isActive ? "bg-accent text-accent-foreground" : "text-muted-foreground"
+    }`
+  }
+>
+  <LayoutTemplate className="h-4 w-4" />
+  Templates
+</NavLink>
+```
+
+---
+
+### **Page Header Component**
+The `PageHeader` component (`components/ui/page-header.tsx`) provides a standardized header pattern for all content pages.
+
+**Purpose:**
+- Consistent page header layout across all pages
+- DRY principle: Reusable component eliminates duplication
+- Responsive design built-in
+
+**Props:**
+- `icon` (required): Lucide icon component
+- `title` (required): Page title string
+- `description` (optional): Subtitle/description text
+- `action` (optional): ReactNode for CTA buttons (e.g., "Create" button)
+
+**Layout Pattern:**
+- **Mobile:** Stacked layout (`flex-col`)
+- **Desktop:** Horizontal layout with space-between (`sm:flex-row sm:justify-between`)
+- **Icon Container:** `bg-primary/10` with icon in `text-primary`
+- **Title:** `text-2xl lg:text-3xl` with `font-semibold tracking-tight`
+- **Description:** `text-sm text-muted-foreground`
+- **Action:** Full width on mobile (`w-full`), auto width on desktop (`sm:w-auto`)
+
+**Code Example:**
+```tsx
+<PageHeader
+  icon={LayoutTemplate}
+  title="Templates"
+  description="Browse and manage invoice templates for your business"
+  action={
+    <Button variant="default" className="w-full sm:w-auto">
+      <LayoutTemplate className="h-4 w-4" />
+      Create Template
+    </Button>
+  }
+/>
+```
+
+**Design Rules:**
+- Always use semantic colors (no literal scales)
+- Icon must be from Lucide library
+- Action button must follow button composition rules (`[Icon] + [Label]`)
+- Responsive spacing: `gap-4` mobile → maintained on desktop
+
+## 5. Component Standards
 
 ### **Buttons**
 - **Priority:** Use `variant="default"` (Primary) exclusively for the "Happy Path" or "Submit" actions.
@@ -98,6 +180,6 @@
   - The "Close" (X) button must be hidden or disabled.
   - The user must not be able to exit until the process completes or fails.
 
-## 5. Coding Style (Antigravity Specific)
+## 6. Coding Style (Antigravity Specific)
 - **DRY:** If a UI pattern repeats twice, create a local component in `components/ui/shared`.
 - **Clean:** Use Zod for schema validation on all forms to maintain strict type safety.

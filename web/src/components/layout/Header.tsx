@@ -1,4 +1,5 @@
 import { Key, LayoutTemplate, Menu } from "lucide-react";
+import { NavLink } from "react-router-dom";
 import { Button } from "../ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "../ui/sheet";
 import { CreditDisplay } from "./CreditDisplay";
@@ -15,7 +16,7 @@ interface HeaderProps {
 export function Header({ credits = 1000, userName, userEmail, avatarUrl }: HeaderProps) {
 	const navItems = [
 		{ label: "Templates", href: "/templates", icon: LayoutTemplate },
-		{ label: "API Key", href: "/api-key", icon: Key },
+		{ label: "API Keys", href: "/api-keys", icon: Key },
 	];
 
 	return (
@@ -27,14 +28,18 @@ export function Header({ credits = 1000, userName, userEmail, avatarUrl }: Heade
 				{/* Center: Desktop Navigation */}
 				<nav className="hidden items-center gap-1 md:flex">
 					{navItems.map((item) => (
-						<a
+						<NavLink
 							key={item.href}
-							href={item.href}
-							className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+							to={item.href}
+							className={({ isActive }) =>
+								`flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground ${
+									isActive ? "bg-accent text-accent-foreground" : "text-muted-foreground"
+								}`
+							}
 						>
 							<item.icon className="h-4 w-4" />
 							{item.label}
-						</a>
+						</NavLink>
 					))}
 				</nav>
 
@@ -55,14 +60,18 @@ export function Header({ credits = 1000, userName, userEmail, avatarUrl }: Heade
 							<SheetTitle className="text-lg font-semibold">Navigation</SheetTitle>
 							<nav className="mt-6 flex flex-col gap-1">
 								{navItems.map((item) => (
-									<a
+									<NavLink
 										key={item.href}
-										href={item.href}
-										className="-mx-2 flex min-h-11 items-center gap-3 rounded-md px-4 py-3 text-sm font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+										to={item.href}
+										className={({ isActive }) =>
+											`-mx-2 flex min-h-11 items-center gap-3 rounded-md px-4 py-3 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground ${
+												isActive ? "bg-accent text-accent-foreground" : "text-foreground"
+											}`
+										}
 									>
 										<item.icon className="h-4 w-4" />
 										{item.label}
-									</a>
+									</NavLink>
 								))}
 							</nav>
 						</SheetContent>

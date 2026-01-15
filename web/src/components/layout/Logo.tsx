@@ -1,10 +1,13 @@
+import { FileText } from "lucide-react";
+import { Link } from "react-router-dom";
+
 export function Logo() {
 	return (
-		<a href="/" className="flex items-center gap-2">
-			<div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-				<span className="text-sm font-bold text-primary-foreground">RI</span>
+		<Link to="/" className="flex items-center gap-2 transition-opacity hover:opacity-80">
+			<div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary">
+				<FileText className="h-5 w-5 text-primary-foreground" />
 			</div>
-			<span className="text-lg font-semibold text-foreground">RestInvoice</span>
-		</a>
+			<span className="text-lg font-semibold">REST Invoice</span>
+		</Link>
 	);
 }
