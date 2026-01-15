@@ -1,4 +1,5 @@
 import { Key, LayoutTemplate, Menu } from "lucide-react";
+import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { Button } from "../ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "../ui/sheet";
@@ -18,6 +19,9 @@ export function Header({ credits = 1000, userName, userEmail, avatarUrl }: Heade
 		{ label: "Templates", href: "/templates", icon: LayoutTemplate },
 		{ label: "API Keys", href: "/api-keys", icon: Key },
 	];
+
+	// State to control mobile menu
+	const [isOpen, setIsOpen] = useState(false);
 
 	return (
 		<header className="border-b border-border bg-background">
@@ -49,7 +53,7 @@ export function Header({ credits = 1000, userName, userEmail, avatarUrl }: Heade
 					<UserMenu userName={userName} userEmail={userEmail} avatarUrl={avatarUrl} />
 
 					{/* Mobile Menu Trigger */}
-					<Sheet>
+					<Sheet open={isOpen} onOpenChange={setIsOpen}>
 						<SheetTrigger asChild>
 							<Button variant="ghost" size="icon" className="md:hidden">
 								<Menu className="h-5 w-5" />
@@ -63,6 +67,7 @@ export function Header({ credits = 1000, userName, userEmail, avatarUrl }: Heade
 									<NavLink
 										key={item.href}
 										to={item.href}
+										onClick={() => setIsOpen(false)}
 										className={({ isActive }) =>
 											`-mx-2 flex min-h-11 items-center gap-3 rounded-md px-4 py-3 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground ${
 												isActive ? "bg-accent text-accent-foreground" : "text-foreground"
