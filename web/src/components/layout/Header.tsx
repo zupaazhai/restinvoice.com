@@ -1,3 +1,6 @@
+import { Key, LayoutTemplate, Menu } from "lucide-react";
+import { Button } from "../ui/button";
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "../ui/sheet";
 import { CreditDisplay } from "./CreditDisplay";
 import { Logo } from "./Logo";
 import { UserMenu } from "./UserMenu";
@@ -11,8 +14,8 @@ interface HeaderProps {
 
 export function Header({ credits = 1000, userName, userEmail, avatarUrl }: HeaderProps) {
 	const navItems = [
-		{ label: "Templates", href: "/templates" },
-		{ label: "API Key", href: "/api-key" },
+		{ label: "Templates", href: "/templates", icon: LayoutTemplate },
+		{ label: "API Key", href: "/api-key", icon: Key },
 	];
 
 	return (
@@ -21,23 +24,49 @@ export function Header({ credits = 1000, userName, userEmail, avatarUrl }: Heade
 				{/* Left: Logo */}
 				<Logo />
 
-				{/* Center: Navigation */}
-				<nav className="flex items-center gap-1">
+				{/* Center: Desktop Navigation */}
+				<nav className="hidden items-center gap-1 md:flex">
 					{navItems.map((item) => (
 						<a
 							key={item.href}
 							href={item.href}
-							className="rounded-md px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+							className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
 						>
+							<item.icon className="h-4 w-4" />
 							{item.label}
 						</a>
 					))}
 				</nav>
 
-				{/* Right: Credit + User Menu */}
+				{/* Right: Credit + User Menu + Mobile Nav */}
 				<div className="flex items-center gap-4">
 					<CreditDisplay credits={credits} />
 					<UserMenu userName={userName} userEmail={userEmail} avatarUrl={avatarUrl} />
+
+					{/* Mobile Menu Trigger */}
+					<Sheet>
+						<SheetTrigger asChild>
+							<Button variant="ghost" size="icon" className="md:hidden">
+								<Menu className="h-5 w-5" />
+								<span className="sr-only">Toggle menu</span>
+							</Button>
+						</SheetTrigger>
+						<SheetContent side="right" className="w-[280px] p-6 sm:w-[320px]">
+							<SheetTitle className="text-lg font-semibold">Navigation</SheetTitle>
+							<nav className="mt-6 flex flex-col gap-1">
+								{navItems.map((item) => (
+									<a
+										key={item.href}
+										href={item.href}
+										className="-mx-2 flex min-h-11 items-center gap-3 rounded-md px-4 py-3 text-sm font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+									>
+										<item.icon className="h-4 w-4" />
+										{item.label}
+									</a>
+								))}
+							</nav>
+						</SheetContent>
+					</Sheet>
 				</div>
 			</div>
 		</header>
