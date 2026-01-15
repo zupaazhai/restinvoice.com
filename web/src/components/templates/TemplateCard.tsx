@@ -22,7 +22,7 @@ export function TemplateCard({ template }: TemplateCardProps) {
 	};
 
 	return (
-		<Card className="overflow-hidden transition-all hover:shadow-lg hover:border-primary/50 py-0">
+		<Card className="overflow-hidden transition-all hover:shadow-lg hover:border-primary/50 py-0 gap-4">
 			<CardContent className="p-0">
 				{/* Thumbnail Preview Area */}
 				<div className="aspect-[4/3] bg-gradient-to-br from-primary/10 via-primary/5 to-background flex items-center justify-center">
@@ -37,7 +37,7 @@ export function TemplateCard({ template }: TemplateCardProps) {
 				</div>
 			</CardContent>
 
-			<CardFooter className="flex-col items-start gap-2 p-0 pt-2 px-3 pb-3">
+			<CardFooter className="flex-col items-start gap-2 p-0 px-3 pb-3">
 				<div className="w-full space-y-1">
 					<CardTitle className="text-sm">{template.name}</CardTitle>
 					<p className="text-xs text-muted-foreground line-clamp-2">{template.description}</p>

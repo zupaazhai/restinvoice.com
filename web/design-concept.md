@@ -180,6 +180,133 @@ The `PageHeader` component (`components/ui/page-header.tsx`) provides a standard
   - The "Close" (X) button must be hidden or disabled.
   - The user must not be able to exit until the process completes or fails.
 
-## 6. Coding Style (Antigravity Specific)
+## 6. Spacing & Layout Standards
+
+### **Border Radius Scale**
+
+Use a consistent 3-size scale for border radius across all components:
+
+| Size | Class | Pixels | Use Case |
+|------|-------|--------|----------|
+| **Small** | `rounded-md` | 6px | Buttons, Inputs, Badges, Dropdown items, Tab items |
+| **Medium** | `rounded-lg` | 8px | Icon containers, Tabs container, Small cards, Empty state containers |
+| **Large** | `rounded-xl` | 12px | Cards, Modals, Sheets, Large containers |
+| **Circle** | `rounded-full` | 50% | Avatars, Circular icon buttons |
+
+**Rules:**
+- Never use `rounded-sm` (4px) or arbitrary values like `rounded-[10px]`
+- Stick to the 3-size scale + circle for all components
+- Use `rounded-md` as the default for interactive elements
+
+### **Card Padding Standards**
+
+#### Standard Card (Default Pattern)
+```tsx
+<Card className="rounded-xl border py-6 gap-6">
+  <CardHeader className="px-6">...</CardHeader>
+  <CardContent className="px-6">...</CardContent>
+  <CardFooter className="px-6">...</CardFooter>
+</Card>
+```
+
+**Measurements:**
+- **Vertical Padding:** `py-6` (24px) top/bottom on Card itself
+- **Horizontal Padding:** `px-6` (24px) on all Card sub-components
+- **Internal Gap:** `gap-6` (24px) between Card children (flexbox gap)
+- **Border Radius:** `rounded-xl` (12px)
+
+**When to use:** Single cards, detail views, forms, dashboard widgets
+
+---
+
+#### Compact Card Variant
+```tsx
+<Card className="rounded-xl border py-0 gap-4">
+  <CardContent className="p-0">
+    {/* Full-width content like images */}
+  </CardContent>
+  <CardFooter className="px-3 pb-3">
+    {/* Compact footer */}
+  </CardFooter>
+</Card>
+```
+
+**Measurements:**
+- **Vertical Padding:** `py-0` (remove default padding for flush content)
+- **Horizontal Padding:** `px-3` (12px) for footer/header areas
+- **Bottom Padding:** `pb-3` (12px) for final spacing
+- **Internal Gap:** `gap-4` (16px) between sections (reduced from standard)
+
+**When to use:** Grid layouts with many cards (e.g., TemplateCard, product grids, gallery views)
+
+**Example:** `TemplateCard` uses this pattern for tighter spacing in the templates grid.
+
+### **Content Spacing (Gap) Scale**
+
+Use this standardized gap scale for consistent spacing:
+
+| Gap Class | Pixels | Use Case | Examples |
+|-----------|--------|----------|----------|
+| `gap-1` | 4px | Tight inline elements | Breadcrumbs, tag lists |
+| `gap-2` | 8px | Icon + text pairs, form internals | Button icons, input addons, tight vertical lists |
+| `gap-3` | 12px | Horizontal nav items, medium lists | Page header horizontal spacing, nav links |
+| `gap-4` | 16px | Stacked content sections, form fields | Compact card sections, form field spacing, page header vertical |
+| `gap-6` | 24px | Card sections, generous layouts | Standard card sections, page sections, empty states |
+
+**Rules:**
+- Avoid `gap-5`, `gap-8`, or arbitrary gap values
+- Use `gap-2` as default for icon + text combinations
+- Use `gap-4` for compact layouts, `gap-6` for generous layouts
+- Never mix multiple gap sizes within the same flex/grid container
+
+### **Icon Container Standards**
+
+#### Small Icon Container (8×8)
+```tsx
+<div className="h-8 w-8 rounded-md bg-muted flex items-center justify-center">
+  <Icon className="h-4 w-4" />
+</div>
+```
+**Use:** Button icons, inline elements, tight UI areas
+
+---
+
+#### Medium Icon Container (10×10)
+```tsx
+<div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+  <Icon className="h-5 w-5 text-primary" />
+</div>
+```
+**Use:** Page headers, section headers, medium prominence
+
+**Example:** `PageHeader` component uses this pattern
+
+---
+
+#### Large Icon Container (12×12)
+```tsx
+<div className="size-12 rounded-lg bg-muted flex items-center justify-center">
+  <Icon className="h-6 w-6 text-muted-foreground" />
+</div>
+```
+**Use:** Empty states, feature showcases, high prominence areas
+
+**Example:** `Empty` component uses this pattern
+
+---
+
+### **Padding Standards Summary**
+
+| Element | Horizontal | Vertical | Notes |
+|---------|-----------|----------|-------|
+| Card (standard) | — | `py-6` | 24px top/bottom |
+| CardContent | `px-6` | — | 24px left/right |
+| Card (compact) | — | `py-0` | Remove default |
+| Compact Footer | `px-3` | `pb-3` | 12px padding |
+| Button | `px-4` | `py-2` | Default size |
+| Input | `px-3` | `py-1` | Standard input |
+| Empty State | `p-6 md:p-12` | — | Responsive padding |
+
+## 7. Coding Style (Antigravity Specific)
 - **DRY:** If a UI pattern repeats twice, create a local component in `components/ui/shared`.
 - **Clean:** Use Zod for schema validation on all forms to maintain strict type safety.
