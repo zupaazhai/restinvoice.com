@@ -1,8 +1,8 @@
+import { Check, Code2, Copy } from "lucide-react";
 import { useState } from "react";
-import { Check, Copy, Code2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
 
 const CODE_EXAMPLES = {
 	curl: `curl -X POST https://api.restinvoice.com/v1/invoices/generate \\
@@ -155,7 +155,7 @@ const LANGUAGE_LABELS: Record<Language, string> = {
 	rust: "Rust",
 };
 
-function CodeBlock({ code, language }: { code: string; language: string }) {
+function CodeBlock({ code }: { code: string }) {
 	const [copied, setCopied] = useState(false);
 
 	const handleCopy = async () => {
@@ -173,11 +173,7 @@ function CodeBlock({ code, language }: { code: string; language: string }) {
 				onClick={handleCopy}
 				aria-label={copied ? "Copied" : "Copy code"}
 			>
-				{copied ? (
-					<Check className="h-4 w-4 text-chart-1" />
-				) : (
-					<Copy className="h-4 w-4" />
-				)}
+				{copied ? <Check className="h-4 w-4 text-chart-1" /> : <Copy className="h-4 w-4" />}
 			</Button>
 			<pre className="overflow-x-auto rounded-lg bg-muted p-4 font-mono text-sm leading-relaxed">
 				<code className="text-foreground">{code}</code>
@@ -211,13 +207,11 @@ export function CodeExamples() {
 							</TabsTrigger>
 						))}
 					</TabsList>
-					{(Object.entries(CODE_EXAMPLES) as [Language, string][]).map(
-						([lang, code]) => (
-							<TabsContent key={lang} value={lang}>
-								<CodeBlock code={code} language={lang} />
-							</TabsContent>
-						)
-					)}
+					{(Object.entries(CODE_EXAMPLES) as [Language, string][]).map(([lang, code]) => (
+						<TabsContent key={lang} value={lang}>
+							<CodeBlock code={code} />
+						</TabsContent>
+					))}
 				</Tabs>
 			</CardContent>
 		</Card>

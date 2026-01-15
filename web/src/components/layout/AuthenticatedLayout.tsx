@@ -17,7 +17,7 @@ export function AuthenticatedLayout({
 	avatarUrl,
 }: AuthenticatedLayoutProps) {
 	return (
-		<div className="min-h-screen bg-background">
+		<div className="min-h-screen bg-background pt-16">
 			<Header credits={credits} userName={userName} userEmail={userEmail} avatarUrl={avatarUrl} />
 			<main className="mx-auto max-w-7xl px-4 py-6">{children}</main>
 		</div>

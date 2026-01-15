@@ -1,7 +1,7 @@
-import { Home, Zap, Calendar, Coins } from "lucide-react";
-import { PageHeader } from "@/components/ui/page-header";
-import { StatsCard } from "@/components/dashboard/StatsCard";
+import { Calendar, Coins, Home, Zap } from "lucide-react";
 import { CodeExamples } from "@/components/dashboard/CodeExamples";
+import { StatsCard } from "@/components/dashboard/StatsCard";
+import { PageHeader } from "@/components/ui/page-header";
 
 export function DashboardPage() {
 	// TODO: Replace with real data from API

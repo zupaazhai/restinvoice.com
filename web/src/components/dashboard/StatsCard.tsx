@@ -19,9 +19,7 @@ export function StatsCard({ icon: Icon, title, value, description }: StatsCardPr
 					<div className="flex flex-col gap-1">
 						<span className="text-sm font-medium text-muted-foreground">{title}</span>
 						<span className="text-2xl font-semibold tracking-tight">{value}</span>
-						{description && (
-							<span className="text-xs text-muted-foreground">{description}</span>
-						)}
+						{description && <span className="text-xs text-muted-foreground">{description}</span>}
 					</div>
 				</div>
 			</CardContent>
