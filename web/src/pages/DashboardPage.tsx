@@ -2,6 +2,7 @@ import { Calendar, Coins, Home, Zap } from "lucide-react";
 import { CodeExamples } from "@/components/dashboard/CodeExamples";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { PageHeader } from "@/components/ui/page-header";
+import { formatNumber } from "@/lib/utils";
 
 export function DashboardPage() {
 	// TODO: Replace with real data from API
@@ -19,25 +20,24 @@ export function DashboardPage() {
 				description="Welcome to REST Invoice - Your invoice generation platform"
 			/>
 
-			{/* Stats Section */}
 			<section>
 				<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
 					<StatsCard
 						icon={Zap}
 						title="API Calls Today"
-						value={stats.apiCallsToday.toLocaleString()}
+						value={formatNumber(stats.apiCallsToday)}
 						description="Invoices generated today"
 					/>
 					<StatsCard
 						icon={Calendar}
 						title="API Calls This Month"
-						value={stats.apiCallsThisMonth.toLocaleString()}
+						value={formatNumber(stats.apiCallsThisMonth)}
 						description="Total for January 2026"
 					/>
 					<StatsCard
 						icon={Coins}
 						title="Credits Remaining"
-						value={stats.creditsRemaining.toLocaleString()}
+						value={formatNumber(stats.creditsRemaining)}
 						description="Available for generation"
 					/>
 				</div>

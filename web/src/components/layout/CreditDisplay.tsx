@@ -1,11 +1,12 @@
 import { Coins } from "lucide-react";
+import { formatNumber } from "@/lib/utils";
 
 interface CreditDisplayProps {
 	credits: number;
 }
 
 export function CreditDisplay({ credits }: CreditDisplayProps) {
-	const formattedCredits = credits.toLocaleString();
+	const formattedCredits = formatNumber(credits);
 
 	return (
 		<div className="flex items-center gap-1.5 text-sm">
