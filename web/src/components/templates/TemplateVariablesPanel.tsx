@@ -2,23 +2,27 @@ import { FileText, ImageIcon, Palette, Type } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import type { TemplateVariable } from "@/types/template.types";
 
-interface TemplateVariablesPanelProps {
+interface TemplateVariablesContentProps {
 	variables: TemplateVariable[];
 	onVariableChange: (id: string, value: string) => void;
 }
 
-export function TemplateVariablesPanel({
+const getVariableIcon = (variable: TemplateVariable) => {
+	if (variable.type === "color") return Palette;
+	if (variable.type === "image") return ImageIcon;
+	return Type;
+};
+
+/**
+ * Reusable content component for template variables form.
+ * Used in both desktop sidebar and mobile Sheet.
+ */
+export function TemplateVariablesContent({
 	variables,
 	onVariableChange,
-}: TemplateVariablesPanelProps) {
-	const getVariableIcon = (variable: TemplateVariable) => {
-		if (variable.type === "color") return Palette;
-		if (variable.type === "image") return ImageIcon;
-		return Type;
-	};
-
+}: TemplateVariablesContentProps) {
 	return (
-		<aside className="flex h-full w-80 flex-col border-l border-border bg-card">
+		<>
 			<div className="border-b border-border p-4">
 				<h3 className="flex items-center gap-2 font-semibold text-foreground">
 					<FileText className="h-4 w-4 text-muted-foreground" />
@@ -87,6 +91,26 @@ export function TemplateVariablesPanel({
 					</p>
 				</div>
 			</div>
+		</>
+	);
+}
+
+interface TemplateVariablesPanelProps {
+	variables: TemplateVariable[];
+	onVariableChange: (id: string, value: string) => void;
+}
+
+/**
+ * Desktop sidebar wrapper for template variables.
+ * Hidden on mobile (lg:hidden in parent).
+ */
+export function TemplateVariablesPanel({
+	variables,
+	onVariableChange,
+}: TemplateVariablesPanelProps) {
+	return (
+		<aside className="flex h-full w-80 flex-col border-l border-border bg-card">
+			<TemplateVariablesContent variables={variables} onVariableChange={onVariableChange} />
 		</aside>
 	);
 }

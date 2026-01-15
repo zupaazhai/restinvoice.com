@@ -1,16 +1,20 @@
-import { Code, Eye, FileEdit, Save } from "lucide-react";
+import { Code, Eye, FileEdit, Save, Settings } from "lucide-react";
 import { useMemo, useState } from "react";
 import { TemplateCodeEditor } from "@/components/templates/TemplateCodeEditor";
 import { TemplatePreview } from "@/components/templates/TemplatePreview";
-import { TemplateVariablesPanel } from "@/components/templates/TemplateVariablesPanel";
+import {
+	TemplateVariablesContent,
+	TemplateVariablesPanel,
+} from "@/components/templates/TemplateVariablesPanel";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { TemplateVariable } from "@/types/template.types";
 
 // Default Template Constants
 const DEFAULT_TEMPLATE = `
-<div style="font-family: sans-serif; color: #333; padding: 40px; border: 1px solid #eee; background: #fff; max-width: 800px; margin: auto;">
+<div style="font-family: sans-serif; color: #333; padding: 40px; background: #fff; max-width: 800px; margin: auto;">
   <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 40px;">
     <div>
       <img src="{{logo_url}}" alt="Logo" style="height: 60px; margin-bottom: 10px; border-radius: 4px;" />
@@ -114,6 +118,7 @@ export function TemplateEditorPage() {
 	const [mode, setMode] = useState<"preview" | "code">("preview");
 	const [template, setTemplate] = useState(DEFAULT_TEMPLATE);
 	const [variables, setVariables] = useState<TemplateVariable[]>(INITIAL_VARIABLES);
+	const [isVariablesPanelOpen, setIsVariablesPanelOpen] = useState(false);
 
 	// Inject variables into the template string
 	const renderedHtml = useMemo(() => {
@@ -130,7 +135,7 @@ export function TemplateEditorPage() {
 	};
 
 	return (
-		<div className="space-y-6">
+		<div className="flex h-[calc(100vh-theme(spacing.16)-theme(spacing.12))] flex-col gap-6">
 			{/* Header */}
 			<div className="flex flex-wrap items-center justify-between gap-4">
 				<PageHeader
@@ -139,8 +144,8 @@ export function TemplateEditorPage() {
 					description="Customize your invoice template"
 				/>
 
-				<div className="flex items-center gap-4">
-					{/* Mode Toggle */}
+				<div className="flex w-full items-center justify-between gap-2 lg:w-auto lg:justify-start">
+					{/* Mode Toggle - Left on mobile */}
 					<Tabs value={mode} onValueChange={(v) => setMode(v as "preview" | "code")}>
 						<TabsList>
 							<TabsTrigger value="preview">
@@ -154,16 +159,40 @@ export function TemplateEditorPage() {
 						</TabsList>
 					</Tabs>
 
-					{/* Save Button */}
-					<Button variant="default">
-						<Save className="h-4 w-4" />
-						Save Template
-					</Button>
+					{/* Right side buttons group */}
+					<div className="flex items-center gap-2">
+						{/* Mobile Variables Panel Trigger - only in preview mode */}
+						{mode === "preview" && (
+							<Sheet open={isVariablesPanelOpen} onOpenChange={setIsVariablesPanelOpen}>
+								<SheetTrigger asChild>
+									<Button variant="outline" size="icon" className="lg:hidden">
+										<Settings className="h-4 w-4" />
+										<span className="sr-only">Toggle variables panel</span>
+									</Button>
+								</SheetTrigger>
+								<SheetContent side="right" className="flex w-80 flex-col p-0">
+									<SheetHeader className="sr-only">
+										<SheetTitle>Template Variables</SheetTitle>
+									</SheetHeader>
+									<TemplateVariablesContent
+										variables={variables}
+										onVariableChange={handleVariableChange}
+									/>
+								</SheetContent>
+							</Sheet>
+						)}
+
+						{/* Save Button - Icon only on mobile */}
+						<Button variant="default">
+							<Save className="h-4 w-4" />
+							<span className="hidden lg:inline">Save Template</span>
+						</Button>
+					</div>
 				</div>
 			</div>
 
 			{/* Main Content */}
-			<div className="flex gap-6">
+			<div className="flex min-h-0 flex-1 gap-6">
 				{mode === "preview" ? (
 					<>
 						{/* Preview Area */}
