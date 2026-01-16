@@ -47,7 +47,7 @@ export function TemplateList({
 	return (
 		<div className="space-y-6">
 			{/* Filter Bar */}
-			<div className="flex flex-col gap-4 md:flex-row md:items-center">
+			<div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
 				{/* Type Filter Tabs */}
 				<Tabs value={typeFilter} onValueChange={(value) => setTypeFilter(value as FilterType)}>
 					<TabsList>
