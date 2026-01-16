@@ -341,3 +341,110 @@ Use this standardized gap scale for consistent spacing:
 ## 7. Coding Style (Antigravity Specific)
 - **DRY:** If a UI pattern repeats twice, create a local component in `components/ui/shared`.
 - **Clean:** Use Zod for schema validation on all forms to maintain strict type safety.
+
+## 8. Authentication & Loading States
+
+### **Clerk Authentication Theme**
+
+When integrating Clerk authentication, customize the appearance to match the design system:
+
+**Clerk Theme Configuration** (`lib/clerk-theme.ts`):
+- Use semantic color tokens from `index.css` (e.g., `var(--primary)`, `var(--background)`)
+- Match border radius: `calc(var(--radius) + 4px)` for card, `calc(var(--radius) - 2px)` for buttons/inputs
+- Match shadows: use `var(--shadow-sm)` for cards
+- Override all Clerk internal styles to ensure consistency
+
+**Social Button Styling (Outline Variant):**
+```typescript
+socialButtonsBlockButton: {
+  borderRadius: "calc(var(--radius) - 2px)",
+  backgroundColor: "var(--background)",
+  color: "var(--foreground)",
+  border: "1px solid var(--border)",
+  boxShadow: "var(--shadow-xs)",
+  "&:hover": {
+    backgroundColor: "var(--clerk-accent)",
+    color: "var(--clerk-accent-foreground)",
+  },
+}
+```
+
+### **Dedicated Clerk CSS Variables**
+
+**Problem:** Clerk's internal `.cl-internal-*` classes can conflict with standard CSS variables like `--accent`.
+
+**Solution:** Create dedicated Clerk variables in `index.css`:
+```css
+:root {
+  --accent: hsl(0 0% 93.3333%);
+  --accent-foreground: hsl(220.9091 39.2857% 10.9804%);
+  --clerk-accent: var(--accent);
+  --clerk-accent-foreground: var(--accent-foreground);
+}
+```
+
+**Benefits:**
+- Avoids CSS variable conflicts with third-party libraries
+- Maintains theme consistency (inherits from main theme)
+- Easy to update (change source variable, Clerk updates automatically)
+- Applies to both light and dark themes
+
+### **Skeleton Loading States**
+
+For slow network conditions, implement skeleton loaders that mirror the actual component structure.
+
+**Pattern:** Use `useClerk()` hook to detect loading state:
+```tsx
+import { useClerk } from "@clerk/clerk-react";
+import { Skeleton } from "@/components/ui/skeleton";
+
+export function LoginPage() {
+  const clerk = useClerk();
+
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-muted/40 p-4">
+      {!clerk.loaded ? <SignInSkeleton /> : <SignIn />}
+    </div>
+  );
+}
+```
+
+**Skeleton Design Rules:**
+- Match exact dimensions of the actual component
+- Use same border radius and padding (`rounded-xl`, `p-8`)
+- Include placeholders for all major UI elements (title, buttons, inputs, footer)
+- Use `grid` layout for side-by-side elements (e.g., `grid-cols-2` for social buttons)
+- Follow spacing standards (`mb-6`, `mb-8`)
+
+**Example Structure:**
+```tsx
+function SignInSkeleton() {
+  return (
+    <div className="w-full max-w-md rounded-xl border bg-card p-8 shadow-sm">
+      {/* Title and description */}
+      <div className="mb-8 text-center">
+        <Skeleton className="mx-auto mb-3 h-8 w-64 rounded" />
+        <Skeleton className="mx-auto h-5 w-80 rounded" />
+      </div>
+
+      {/* Social buttons (2-column grid) */}
+      <div className="mb-6 grid grid-cols-2 gap-2">
+        <Skeleton className="h-10 w-full rounded-md" />
+        <Skeleton className="h-10 w-full rounded-md" />
+      </div>
+
+      {/* Form fields and submit */}
+      <div className="mb-6 space-y-2">
+        <Skeleton className="h-4 w-24 rounded" />
+        <Skeleton className="h-10 w-full rounded-md" />
+      </div>
+      <Skeleton className="mb-8 h-10 w-full rounded-md" />
+
+      {/* Footer */}
+      <div className="text-center">
+        <Skeleton className="mx-auto h-4 w-56 rounded" />
+      </div>
+    </div>
+  );
+}
+```

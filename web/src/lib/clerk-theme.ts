@@ -126,15 +126,16 @@ export const clerkAppearance: Appearance = {
 			},
 		},
 
-		// Social connection buttons
+		// Social connection buttons (outline variant with dedicated Clerk CSS variables)
 		socialButtonsBlockButton: {
 			borderRadius: "calc(var(--radius) - 2px)", // rounded-md
-			backgroundColor: "var(--secondary)",
-			color: "var(--secondary-foreground)",
-			borderColor: "var(--border)",
+			backgroundColor: "var(--background)",
+			color: "var(--foreground)",
+			border: "1px solid var(--border)",
+			boxShadow: "var(--shadow-xs)",
 			"&:hover": {
-				backgroundColor: "var(--secondary)",
-				opacity: "0.8",
+				backgroundColor: "var(--clerk-accent)",
+				color: "var(--clerk-accent-foreground)",
 			},
 		},
 
@@ -156,6 +157,41 @@ export const clerkAppearance: Appearance = {
 		// Error states
 		formFieldErrorText: {
 			color: "var(--destructive)",
+		},
+
+		// UserButton dropdown menu
+		userButtonPopoverCard: {
+			borderRadius: "calc(var(--radius) + 4px)", // rounded-xl (12px)
+			boxShadow: "var(--shadow-sm)",
+			border: "1px solid var(--border)",
+			backgroundColor: "var(--card)",
+			padding: "4px !important", // p-1
+			minWidth: "8rem !important", // min-w-[8rem]
+			width: "16rem !important", // w-64 (256px)
+		},
+
+		userButtonPopoverActionButton: {
+			borderRadius: "calc(var(--radius) - 4px)", // rounded-sm to match DropdownMenuItem
+			color: "var(--foreground)",
+			padding: "6px 8px", // py-1.5 px-2
+			"&:hover, &:focus, &:active": {
+				backgroundColor: "var(--clerk-accent) !important",
+				color: "var(--clerk-accent-foreground) !important",
+			},
+		},
+
+		userButtonPopoverActionButtonIcon: {
+			color: "var(--muted-foreground)",
+		},
+
+		userButtonPopoverActionButtonText: {
+			color: "var(--foreground)",
+		},
+
+		userButtonPopoverFooter: {
+			borderTop: "0",
+			backgroundColor: "var(--card)",
+			color: "var(--muted-foreground)",
 		},
 	},
 };
