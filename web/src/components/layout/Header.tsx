@@ -38,13 +38,13 @@ export function Header({ credits = 1000, userName, userEmail, avatarUrl }: Heade
 							key={item.href}
 							to={item.href}
 							className={({ isActive }) =>
-								`flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground ${
+								`flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground whitespace-nowrap ${
 									isActive ? "bg-accent text-accent-foreground" : "text-muted-foreground"
 								}`
 							}
 						>
 							<item.icon className="h-4 w-4" />
-							{item.label}
+							<span className="hidden min-[820px]:inline">{item.label}</span>
 						</NavLink>
 					))}
 				</nav>
