@@ -1,6 +1,5 @@
 import { SignIn, useClerk } from "@clerk/clerk-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { clerkAppearance } from "@/lib/clerk-theme";
 
 function SignInSkeleton() {
 	return (
@@ -39,7 +38,7 @@ export function LoginPage() {
 
 	return (
 		<div className="flex min-h-screen items-center justify-center bg-muted/40 p-4">
-			{!clerk.loaded ? <SignInSkeleton /> : <SignIn appearance={clerkAppearance} />}
+			{!clerk.loaded ? <SignInSkeleton /> : <SignIn />}
 		</div>
 	);
 }

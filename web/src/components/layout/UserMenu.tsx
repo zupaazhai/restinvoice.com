@@ -1,5 +1,4 @@
 import { UserButton, useUser } from "@clerk/clerk-react";
-import { clerkAppearance } from "@/lib/clerk-theme";
 
 interface UserMenuProps {
 	userName?: string;
@@ -21,7 +20,13 @@ export function UserMenu({
 
 	return (
 		<div className="w-8 h-8 bg-muted rounded-full">
-			<UserButton appearance={clerkAppearance} />
+			<UserButton
+				appearance={{
+					elements: {
+						userButtonPopoverCard: "w-[16rem]",
+					},
+				}}
+			/>
 		</div>
 	)
 }
