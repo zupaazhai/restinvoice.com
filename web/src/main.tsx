@@ -4,6 +4,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import App from "./App.tsx";
+import { ThemeProvider } from "./components/theme-provider.tsx";
 import "./index.css";
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
@@ -19,16 +20,18 @@ if (!rootElement) {
 
 createRoot(rootElement).render(
 	<StrictMode>
-		<ClerkProvider
-			publishableKey={PUBLISHABLE_KEY}
-			afterSignOutUrl="/"
-			appearance={{
-				theme: shadcn,
-			}}
-		>
-			<BrowserRouter>
-				<App />
-			</BrowserRouter>
-		</ClerkProvider>
+		<ThemeProvider defaultTheme="system" storageKey="restinvoice-ui-theme">
+			<ClerkProvider
+				publishableKey={PUBLISHABLE_KEY}
+				afterSignOutUrl="/"
+				appearance={{
+					theme: shadcn,
+				}}
+			>
+				<BrowserRouter>
+					<App />
+				</BrowserRouter>
+			</ClerkProvider>
+		</ThemeProvider>
 	</StrictMode>
 );

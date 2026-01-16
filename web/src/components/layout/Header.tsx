@@ -2,7 +2,8 @@ import { FolderHeart, Key, LayoutTemplate, Menu } from "lucide-react";
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { Button } from "../ui/button";
-import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "../ui/sheet";
+import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet";
+import { ThemeToggle } from "../ui/theme-toggle";
 import { CreditDisplay } from "./CreditDisplay";
 import { Logo } from "./Logo";
 import { UserMenu } from "./UserMenu";
@@ -48,9 +49,12 @@ export function Header({ credits = 1000, userName, userEmail, avatarUrl }: Heade
 					))}
 				</nav>
 
-				{/* Right: Credit + User Menu + Mobile Nav */}
+				{/* Right: Theme Toggle + Credit + User Menu + Mobile Nav */}
 				<div className="flex items-center gap-4">
 					<CreditDisplay credits={credits} />
+					<div className="hidden md:block">
+						<ThemeToggle />
+					</div>
 					<UserMenu userName={userName} userEmail={userEmail} avatarUrl={avatarUrl} />
 
 					{/* Mobile Menu Trigger */}
@@ -62,8 +66,10 @@ export function Header({ credits = 1000, userName, userEmail, avatarUrl }: Heade
 							</Button>
 						</SheetTrigger>
 						<SheetContent side="right" className="w-[280px] p-6 sm:w-[320px]">
-							<SheetTitle className="text-lg font-semibold">Navigation</SheetTitle>
-							<nav className="mt-6 flex flex-col gap-1">
+							<div className="absolute top-4 right-16">
+								<ThemeToggle />
+							</div>
+							<nav className="mt-8 flex flex-col gap-1">
 								{navItems.map((item) => (
 									<NavLink
 										key={item.href}
