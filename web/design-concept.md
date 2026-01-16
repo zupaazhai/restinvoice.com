@@ -1,3 +1,4 @@
+<!-- Last Check Commit: 035fe79abcd0fb3d72aa68fd865271ab6b3a365d -->
 # UI/UX Design System & Principles
 
 ## 1. Layout & Architecture
@@ -346,48 +347,37 @@ Use this standardized gap scale for consistent spacing:
 
 ### **Clerk Authentication Theme**
 
-When integrating Clerk authentication, customize the appearance to match the design system:
+We use the official Shadcn theme package from Clerk for seamless integration.
 
-**Clerk Theme Configuration** (`lib/clerk-theme.ts`):
-- Use semantic color tokens from `index.css` (e.g., `var(--primary)`, `var(--background)`)
-- Match border radius: `calc(var(--radius) + 4px)` for card, `calc(var(--radius) - 2px)` for buttons/inputs
-- Match shadows: use `var(--shadow-sm)` for cards
-- Override all Clerk internal styles to ensure consistency
+**Configuration** (`main.tsx`):
+- Package: `@clerk/themes`
+- Theme: `shadcn`
+- Import: `import { shadcn } from "@clerk/themes";`
 
-**Social Button Styling (Outline Variant):**
-```typescript
-socialButtonsBlockButton: {
-  borderRadius: "calc(var(--radius) - 2px)",
-  backgroundColor: "var(--background)",
-  color: "var(--foreground)",
-  border: "1px solid var(--border)",
-  boxShadow: "var(--shadow-xs)",
-  "&:hover": {
-    backgroundColor: "var(--clerk-accent)",
-    color: "var(--clerk-accent-foreground)",
-  },
-}
+**Setup Code:**
+```tsx
+<ClerkProvider
+  appearance={{
+    theme: shadcn,
+  }}
+>
 ```
+
+**Benefits:**
+- Automatically matches Shadcn UI design tokens (radius, primary colors, fonts)
+- Reduces custom CSS maintenance
+- Provides a "native" look and feel out of the box
 
 ### **Dedicated Clerk CSS Variables**
 
-**Problem:** Clerk's internal `.cl-internal-*` classes can conflict with standard CSS variables like `--accent`.
+We use supplementary CSS variables in `index.css` to handle any edge cases where Clerk's content needs specific targeting, although the `shadcn` theme handles most of this automatically now.
 
-**Solution:** Create dedicated Clerk variables in `index.css`:
 ```css
 :root {
-  --accent: hsl(0 0% 93.3333%);
-  --accent-foreground: hsl(220.9091 39.2857% 10.9804%);
   --clerk-accent: var(--accent);
   --clerk-accent-foreground: var(--accent-foreground);
 }
 ```
-
-**Benefits:**
-- Avoids CSS variable conflicts with third-party libraries
-- Maintains theme consistency (inherits from main theme)
-- Easy to update (change source variable, Clerk updates automatically)
-- Applies to both light and dark themes
 
 ### **Skeleton Loading States**
 
