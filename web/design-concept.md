@@ -201,6 +201,17 @@ The `PageHeader` component (`components/ui/page-header.tsx`) provides a standard
 - **Composition:** Every button **must** be a composite of `[Lucide Icon] + [Label]`.
 - **Loading State:** When an `isLoading` state is active, the button must switch to `variant="loading"` and disable pointer events.
 
+### **Copy Button**
+- **Usage:** Use the `CopyButton` component (`components/ui/copy-button.tsx`) for consistent copy-to-clipboard functionality.
+- **Features:** Encapsulates the copy logic, generic type handling, and provides visual feedback (Icon change from Copy to Check) with a 2-second timeout.
+- **Props:**
+  - `value`: The string to be copied.
+  - `variant`, `size`, `className`: Standard button props to customize appearance.
+- **Example:**
+```tsx
+<CopyButton value="sk_123456789" variant="ghost" size="icon" />
+```
+
 ### **Inputs & Forms**
 
 We use two component systems for forms:
@@ -314,6 +325,9 @@ function MyForm() {
   - Use a large, centered icon (e.g., `h-12 w-12` inside a rounded container) above the `DialogHeader`.
   - Center the title and description text.
   - The layout should be simple and focused on the confirmation message.
+- **State Management:**
+  - **Reset on Open:** Form forms inside dialogs MUST reset their state (values and validation errors) every time the dialog opens. Do not rely on "destroy on close" unless the library handles it perfectly. Explicit reset on `open=true` is preferred.
+  - **Success to Form Reset:** If a dialog has a success state, closing it and reopening it MUST return the user to the initial form state, not the success state.
 
 ## 6. Spacing & Layout Standards
 

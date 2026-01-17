@@ -1,10 +1,13 @@
+
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AlertTriangle, Check, Copy, Key, Loader2 } from "lucide-react";
+import { AlertTriangle, Check, Key, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { CopyButton } from "@/components/ui/copy-button";
 import {
 	Dialog,
 	DialogContent,
@@ -31,7 +34,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { cn } from "@/lib/utils";
+
 
 const formSchema = z.object({
 	name: z.string().min(1, "Name is required"),
@@ -44,7 +47,6 @@ export function CreateApiKeyDialog({ children }: { children?: React.ReactNode })
 	const [open, setOpen] = useState(false);
 	const [step, setStep] = useState<"form" | "loading" | "success">("form");
 	const [generatedKey, setGeneratedKey] = useState<string | null>(null);
-	const [copied, setCopied] = useState(false);
 
 	const form = useForm<FormValues>({
 		resolver: zodResolver(formSchema),
@@ -62,32 +64,26 @@ export function CreateApiKeyDialog({ children }: { children?: React.ReactNode })
 			const mockKey = `sk_${Math.random().toString(36).substring(2, 15)}_${Math.random().toString(36).substring(2, 15)}`;
 			setGeneratedKey(mockKey);
 			setStep("success");
-		}, 1500);
+		}, 3000);
 	};
 
-	const handleCopy = async () => {
-		if (generatedKey) {
-			await navigator.clipboard.writeText(generatedKey);
-			setCopied(true);
-			setTimeout(() => setCopied(false), 2000);
-		}
-	};
+
 
 	const handleOpenChange = (newOpen: boolean) => {
 		if (!newOpen && step === "loading") {
-			// Prevent closing while loading
 			return;
 		}
-		setOpen(newOpen);
-		if (!newOpen) {
-			// Reset state when closed
-			setTimeout(() => {
-				setStep("form");
-				setGeneratedKey(null);
-				form.reset();
-				setCopied(false);
-			}, 300);
+		if (newOpen) {
+			setStep("form");
+			setGeneratedKey(null);
+			// specific for react-hook-form to ensure fresh state
+			form.reset({
+				name: "",
+				expiresIn: "365d",
+			});
+			form.clearErrors();
 		}
+		setOpen(newOpen);
 	};
 
 	return (
@@ -102,7 +98,8 @@ export function CreateApiKeyDialog({ children }: { children?: React.ReactNode })
 			</DialogTrigger>
 			<DialogContent
 				className="sm:max-w-[500px]"
-				onPointerDownOutside={(e) => {
+				showCloseButton={step !== "loading"}
+				onInteractOutside={(e) => {
 					if (step === "loading") e.preventDefault();
 				}}
 				onEscapeKeyDown={(e) => {
@@ -206,18 +203,14 @@ export function CreateApiKeyDialog({ children }: { children?: React.ReactNode })
 						</div>
 
 						<div className="space-y-4 py-2">
-							<div className="rounded-md border border-amber-200 bg-amber-50 p-4 dark:border-amber-900/50 dark:bg-amber-900/20">
-								<div className="flex gap-3">
-									<AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-500" />
-									<div className="text-sm text-amber-800 dark:text-amber-200">
-										<p className="font-medium">Save this key securely</p>
-										<p className="mt-1">
-											For security reasons, you will not be able to view this key again. If you lose
-											it, you will need to generate a new one.
-										</p>
-									</div>
-								</div>
-							</div>
+							<Alert variant="warning">
+								<AlertTriangle className="h-4 w-4" />
+								<AlertTitle>Save this key securely</AlertTitle>
+								<AlertDescription>
+									For security reasons, you will not be able to view this key again. If you lose it,
+									you will need to generate a new one.
+								</AlertDescription>
+							</Alert>
 
 							<div className="space-y-2">
 								<Label>API Key</Label>
@@ -228,17 +221,7 @@ export function CreateApiKeyDialog({ children }: { children?: React.ReactNode })
 										className="font-mono text-muted-foreground bg-muted"
 										onClick={(e) => e.currentTarget.select()}
 									/>
-									<Button
-										variant="outline"
-										size="icon"
-										className={cn(
-											"shrink-0 transition-all",
-											copied && "border-green-500 text-green-500 hover:text-green-500"
-										)}
-										onClick={handleCopy}
-									>
-										{copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-									</Button>
+									<CopyButton value={generatedKey || ""} />
 								</div>
 							</div>
 						</div>

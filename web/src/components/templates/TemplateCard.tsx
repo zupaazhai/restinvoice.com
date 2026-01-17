@@ -1,8 +1,6 @@
-import { Check, Copy } from "lucide-react";
-import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardTitle } from "@/components/ui/card";
+import { CopyButton } from "@/components/ui/copy-button";
 import type { Template } from "@/types/template.types";
 
 interface TemplateCardProps {
@@ -12,17 +10,6 @@ interface TemplateCardProps {
 }
 
 export function TemplateCard({ template, linkTo }: TemplateCardProps) {
-	const [copied, setCopied] = useState(false);
-
-	const handleCopy = async () => {
-		try {
-			await navigator.clipboard.writeText(template.id);
-			setCopied(true);
-			setTimeout(() => setCopied(false), 2000);
-		} catch (error) {
-			console.error("Failed to copy template ID:", error);
-		}
-	};
 
 	const thumbnailContent = (
 		<div className="aspect-[4/3] bg-gradient-to-br from-primary/10 via-primary/5 to-background flex items-center justify-center">
@@ -58,15 +45,13 @@ export function TemplateCard({ template, linkTo }: TemplateCardProps) {
 					<code className="text-xs text-muted-foreground font-mono flex-1 truncate">
 						{template.id}
 					</code>
-					<Button
+					<CopyButton
+						value={template.id}
 						variant="ghost"
 						size="icon"
 						className="h-8 w-8 shrink-0"
-						onClick={handleCopy}
 						aria-label="Copy template ID"
-					>
-						{copied ? <Check className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4" />}
-					</Button>
+					/>
 				</div>
 			</CardFooter>
 		</Card>

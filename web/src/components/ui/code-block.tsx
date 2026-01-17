@@ -1,8 +1,6 @@
-import { Check, Copy } from "lucide-react";
-import { useState } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
-import { Button } from "@/components/ui/button";
+import { CopyButton } from "@/components/ui/copy-button";
 import { cn } from "@/lib/utils";
 
 interface CodeBlockProps {
@@ -12,25 +10,15 @@ interface CodeBlockProps {
 }
 
 export function CodeBlock({ language, code, className }: CodeBlockProps) {
-	const [copied, setCopied] = useState(false);
-
-	const handleCopy = async () => {
-		await navigator.clipboard.writeText(code);
-		setCopied(true);
-		setTimeout(() => setCopied(false), 2000);
-	};
-
 	return (
 		<div className={cn("relative overflow-hidden rounded-xl", className)}>
-			<Button
+			<CopyButton
+				value={code}
 				variant="ghost"
 				size="icon-sm"
 				className="absolute right-3 top-3 z-10 text-white hover:text-white hover:bg-white/20"
-				onClick={handleCopy}
-				aria-label={copied ? "Copied" : "Copy code"}
-			>
-				{copied ? <Check className="h-4 w-4 text-green-400" /> : <Copy className="h-4 w-4" />}
-			</Button>
+				aria-label="Copy code"
+			/>
 			<SyntaxHighlighter
 				language={language}
 				style={vscDarkPlus}
