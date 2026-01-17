@@ -171,12 +171,12 @@ DELETE /api-keys/:id         → Revoke API key
 
 #### Templates
 ```
-GET    /templates            → List available templates
-GET    /templates/:id        → Get template details
-POST   /templates            → Create custom template
-PUT    /templates/:id        → Update template
-DELETE /templates/:id        → Delete template
-GET    /templates/system     → List system templates
+GET    /v1/templates            → List available templates (User's)
+GET    /v1/templates/:id        → Get template details
+POST   /v1/templates            → Create custom template
+PUT    /v1/templates/:id        → Update template
+DELETE /v1/templates/:id        → Delete template
+GET    /v1/templates/system     → List system templates
 ```
 
 #### Invoice Generation (Public API)
