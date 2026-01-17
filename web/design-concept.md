@@ -202,9 +202,107 @@ The `PageHeader` component (`components/ui/page-header.tsx`) provides a standard
 - **Loading State:** When an `isLoading` state is active, the button must switch to `variant="loading"` and disable pointer events.
 
 ### **Inputs & Forms**
-- **Structure:** Never use a raw `<Input />`. Wrap all inputs in the Shadcn `FormField` / `FormItem` pattern.
-- **Requirements:** Every input must contain a clear, descriptive `placeholder`.
-- **Validation:** Always include a `<FormMessage />` for error state handling.
+
+We use two component systems for forms:
+
+#### **Field Component (Simple Forms)**
+Use the `Field` component for simple forms without validation (e.g., login forms, search inputs).
+
+```tsx
+import { Field, FieldLabel, FieldDescription, FieldGroup } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+
+<FieldGroup>
+  <Field>
+    <FieldLabel htmlFor="email">Email</FieldLabel>
+    <Input id="email" type="email" placeholder="m@example.com" required />
+  </Field>
+  <Field>
+    <FieldLabel htmlFor="password">Password</FieldLabel>
+    <Input id="password" type="password" required />
+    <FieldDescription>Must be at least 8 characters</FieldDescription>
+  </Field>
+</FieldGroup>
+```
+
+**Field Components:**
+- `FieldGroup`: Container with `gap-7` between fields
+- `Field`: Individual field wrapper with `gap-3` (label-to-input spacing)
+- `FieldLabel`: Label component linked to input via `htmlFor`
+- `FieldDescription`: Helper text below input
+- `FieldError`: Error message display
+- `FieldSeparator`: Visual separator between field sections
+
+---
+
+#### **Form Component (Validated Forms with react-hook-form)**
+Use the `Form` component for complex forms with Zod validation and react-hook-form integration.
+
+```tsx
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+
+const formSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+});
+
+function MyForm() {
+  const form = useForm({
+    resolver: zodResolver(formSchema),
+    defaultValues: { name: "" },
+  });
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Name</FormLabel>
+              <FormControl>
+                <Input placeholder="Enter name" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </form>
+    </Form>
+  );
+}
+```
+
+**Form Components:**
+- `Form`: Provider wrapper (extends react-hook-form's `FormProvider`)
+- `FormField`: Controller wrapper for individual fields
+- `FormItem`: Field container with `grid gap-2` spacing
+- `FormLabel`: Label with automatic error state styling
+- `FormControl`: Wraps input for accessibility attributes
+- `FormMessage`: Displays validation errors
+- `FormDescription`: Helper text
+
+---
+
+#### **When to Use Which**
+
+| Use Case | Component |
+|----------|-----------|
+| Simple login/signup | `Field` |
+| Search inputs | `Field` |
+| Settings forms with validation | `Form` |
+| Multi-step wizards | `Form` |
+| Any form with Zod schema | `Form` |
+
+**Spacing Rules:**
+- `FieldGroup` uses `gap-7` (28px) between fields
+- `Field` uses `gap-3` (12px) between label and input
+- `FormItem` uses `grid gap-2` (8px) between elements
+- Form container uses `space-y-6` (24px) between FormField groups
 
 ### **Modals (Dialogs)**
 - **Interlock Rule:** If a modal contains a loading state (e.g., a form submission in progress):
