@@ -567,3 +567,47 @@ function SignInSkeleton() {
   );
 }
 ```
+
+## 9. Formatting & Critical Actions
+
+### **Date & Time Formatting**
+- **Standard:** All dates and times must be formatted using the `formatDateTime` utility from `@/lib/utils`.
+- **Consistency:** Do not use `new Date().toLocaleDateString()` or raw strings directly in UI components.
+- **Default Style:** Medium date, short time (e.g., "Oct 24, 2024, 10:30 AM").
+- **Example:**
+```tsx
+import { formatDateTime } from "@/lib/utils";
+
+```
+
+### **Number Formatting**
+- **Standard:** Use `formatNumber` utility from `@/lib/utils` for all numeric displays.
+- **Features:** Supports currency, percentages, and compact notation (1.2k).
+- **Example:**
+```tsx
+import { formatNumber } from "@/lib/utils";
+
+// Standard
+<span>{formatNumber(1234.56)}</span> // "1,234.56"
+
+// Compact
+<span>{formatNumber(1500, { style: "compact" })}</span> // "1.5K"
+```
+
+### **Destructive Actions (Delete)**
+- **Requirement:** Any destructive action (deleting a key, removing a template) **MUST** be confirmed by the user.
+- **Component:** Use `AlertDialog` from Shadcn UI (`components/ui/alert-dialog.tsx`).
+- **Pattern:**
+  - **Trigger:** A button with `text-destructive` (usually a trash icon).
+  - **Title:** "Are you absolutely sure?"
+  - **Description:** Explain the consequences clearly (e.g., "This action cannot be undone...").
+  - **Action Button:** Use `AlertDialogAction` with specific destructive styling:
+    ```tsx
+    <AlertDialogAction
+      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+      onClick={handleDelete}
+    >
+      Delete
+    </AlertDialogAction>
+    ```
+- **UX Rule:** Never perform a delete operation immediately on button click.

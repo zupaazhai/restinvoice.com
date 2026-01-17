@@ -39,3 +39,25 @@ export function formatNumber(
 }
 
 export const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+export function formatDateTime(
+	date: Date | string | number,
+	options: {
+		dateStyle?: "full" | "long" | "medium" | "short";
+		timeStyle?: "full" | "long" | "medium" | "short";
+		locale?: string;
+	} = {
+		dateStyle: "medium",
+		timeStyle: "short",
+	}
+) {
+	const dateObj = new Date(date);
+
+	if (Number.isNaN(dateObj.getTime())) {
+		return String(date);
+	}
+
+	const { locale = "en-US", ...formatOptions } = options;
+
+	return new Intl.DateTimeFormat(locale, formatOptions).format(dateObj);
+}
