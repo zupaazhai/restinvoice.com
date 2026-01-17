@@ -212,6 +212,18 @@ The `PageHeader` component (`components/ui/page-header.tsx`) provides a standard
 <CopyButton value="sk_123456789" variant="ghost" size="icon" />
 ```
 
+### **Copy Input**
+- **Usage:** Use the `CopyInput` component (`components/ui/copy-input.tsx`) when you need to display a value (like an API key or ID) that should be easily available for copying but not editable.
+- **Design:** Consists of a read-only input field and a `CopyButton` integrated into a single container with a `bg-muted` background.
+- **Props:**
+  - `value`: The string to be displayed and copied.
+  - `className`: Optional classes for the container.
+  - `readOnly`: Defaults to `true`.
+- **Example:**
+```tsx
+<CopyInput value="sk_123456789" className="w-full" />
+```
+
 ### **Inputs & Forms**
 
 We use two component systems for forms:

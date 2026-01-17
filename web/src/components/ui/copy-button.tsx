@@ -1,9 +1,8 @@
+import type { VariantProps } from "class-variance-authority";
 import { Check, Copy } from "lucide-react";
 import { useState } from "react";
-
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button, type buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import type { VariantProps } from "class-variance-authority";
 
 interface CopyButtonProps
 	extends React.ButtonHTMLAttributes<HTMLButtonElement>,
@@ -11,7 +10,13 @@ interface CopyButtonProps
 	value: string;
 }
 
-export function CopyButton({ value, className, variant = "outline", size = "icon", ...props }: CopyButtonProps) {
+export function CopyButton({
+	value,
+	className,
+	variant = "outline",
+	size = "icon",
+	...props
+}: CopyButtonProps) {
 	const [copied, setCopied] = useState(false);
 
 	const handleCopy = async () => {
@@ -30,7 +35,8 @@ export function CopyButton({ value, className, variant = "outline", size = "icon
 			size={size}
 			className={cn(
 				"shrink-0 transition-all",
-				copied && "border-green-500 text-green-500 hover:text-green-500 hover:bg-green-50 dark:hover:bg-green-900/20",
+				copied &&
+					"border-green-500 text-green-500 hover:text-green-500 hover:bg-green-50 dark:hover:bg-green-900/20",
 				className
 			)}
 			onClick={handleCopy}

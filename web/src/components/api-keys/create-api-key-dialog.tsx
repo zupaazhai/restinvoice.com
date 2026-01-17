@@ -1,4 +1,3 @@
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertTriangle, Check, Key, Loader2 } from "lucide-react";
 import { useState } from "react";
@@ -7,7 +6,7 @@ import * as z from "zod";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { CopyButton } from "@/components/ui/copy-button";
+import { CopyInput } from "@/components/ui/copy-input";
 import {
 	Dialog,
 	DialogContent,
@@ -34,7 +33,6 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-
 
 const formSchema = z.object({
 	name: z.string().min(1, "Name is required"),
@@ -66,8 +64,6 @@ export function CreateApiKeyDialog({ children }: { children?: React.ReactNode })
 			setStep("success");
 		}, 3000);
 	};
-
-
 
 	const handleOpenChange = (newOpen: boolean) => {
 		if (!newOpen && step === "loading") {
@@ -214,15 +210,7 @@ export function CreateApiKeyDialog({ children }: { children?: React.ReactNode })
 
 							<div className="space-y-2">
 								<Label>API Key</Label>
-								<div className="flex gap-2">
-									<Input
-										value={generatedKey || ""}
-										readOnly
-										className="font-mono text-muted-foreground bg-muted"
-										onClick={(e) => e.currentTarget.select()}
-									/>
-									<CopyButton value={generatedKey || ""} />
-								</div>
+								<CopyInput value={generatedKey || ""} className="w-full" />
 							</div>
 						</div>
 
