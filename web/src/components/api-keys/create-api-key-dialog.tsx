@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AlertTriangle, Check, Copy, Key, Loader2, ShieldCheck } from "lucide-react";
+import { AlertTriangle, Check, Copy, Key, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -193,13 +193,17 @@ export function CreateApiKeyDialog({ children }: { children?: React.ReactNode })
 					</>
 				) : (
 					<>
-						<DialogHeader>
-							<DialogTitle className="flex items-center gap-2 text-green-600">
-								<ShieldCheck className="h-5 w-5" />
-								API Key Generated
-							</DialogTitle>
-							<DialogDescription>Your new API key has been created successfully.</DialogDescription>
-						</DialogHeader>
+						<div className="flex flex-col items-center justify-center pt-4">
+							<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400">
+								<Check className="h-6 w-6" />
+							</div>
+							<DialogHeader>
+								<DialogTitle className="text-center">API Key Generated</DialogTitle>
+								<DialogDescription className="text-center">
+									Your new API key has been created successfully.
+								</DialogDescription>
+							</DialogHeader>
+						</div>
 
 						<div className="space-y-4 py-2">
 							<div className="rounded-md border border-amber-200 bg-amber-50 p-4 dark:border-amber-900/50 dark:bg-amber-900/20">

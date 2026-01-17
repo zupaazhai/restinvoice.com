@@ -309,6 +309,11 @@ function MyForm() {
   - The `onPointerDownOutside` and `onEscapeKeyDown` events must be prevented.
   - The "Close" (X) button must be hidden or disabled.
   - The user must not be able to exit until the process completes or fails.
+- **Success State Design:**
+  - Do NOT use colored headers (e.g., green text in the title).
+  - Use a large, centered icon (e.g., `h-12 w-12` inside a rounded container) above the `DialogHeader`.
+  - Center the title and description text.
+  - The layout should be simple and focused on the confirmation message.
 
 ## 6. Spacing & Layout Standards
 
