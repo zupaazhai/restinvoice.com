@@ -1,3 +1,4 @@
+import { getAuth } from "@hono/clerk-auth";
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import { type Template, TemplateSchema } from "../models/template";
 
@@ -98,10 +99,19 @@ const getUserTemplatesRoute = createRoute({
       },
       description: "Retrieve a list of user templates",
     },
+    401: {
+      description: "Unauthorized",
+    },
   },
 });
 
 templates.openapi(getUserTemplatesRoute, (c) => {
+  const auth = getAuth(c);
+
+  if (!auth?.userId) {
+    return c.json({ message: "Unauthorized" }, 401);
+  }
+
   return c.json(USER_TEMPLATES);
 });
 

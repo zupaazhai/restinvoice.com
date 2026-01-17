@@ -1,3 +1,4 @@
+import { useAuth } from "@clerk/clerk-react";
 import { FolderHeart, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { TemplateList } from "@/components/templates/TemplateList";
@@ -11,11 +12,15 @@ export function MyTemplatesPage() {
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 
+	const { getToken, isLoaded } = useAuth();
+
 	useEffect(() => {
 		const fetchTemplates = async () => {
+			if (!isLoaded) return;
 			try {
 				setIsLoading(true);
-				const data = await templatesApi.list();
+				const token = await getToken();
+				const data = await templatesApi.list(token);
 				setTemplates(data);
 			} catch (err) {
 				console.error("Failed to fetch user templates:", err);
@@ -26,7 +31,7 @@ export function MyTemplatesPage() {
 		};
 
 		fetchTemplates();
-	}, []);
+	}, [isLoaded, getToken]);
 
 	if (error) {
 		return (

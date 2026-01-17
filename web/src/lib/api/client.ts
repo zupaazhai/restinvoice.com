@@ -5,13 +5,19 @@ export class ApiClient {
 		this.baseUrl = baseUrl || import.meta.env.VITE_API_URL || "http://localhost:8787";
 	}
 
-	async get<T>(path: string, options?: RequestInit): Promise<T> {
+	async get<T>(path: string, options?: RequestInit & { token?: string | null }): Promise<T> {
+		const headers: HeadersInit = {
+			"Content-Type": "application/json",
+			...options?.headers,
+		};
+
+		if (options?.token) {
+			(headers as Record<string, string>).Authorization = `Bearer ${options.token}`;
+		}
+
 		const response = await fetch(`${this.baseUrl}${path}`, {
 			...options,
-			headers: {
-				"Content-Type": "application/json",
-				...options?.headers,
-			},
+			headers,
 		});
 
 		if (!response.ok) {

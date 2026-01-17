@@ -1,9 +1,12 @@
+import { clerkMiddleware } from "@hono/clerk-auth";
 import { swaggerUI } from "@hono/swagger-ui";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { cors } from "hono/cors";
 import templates from "./routes/templates";
 
 const app = new OpenAPIHono();
+
+app.use("*", clerkMiddleware());
 
 app.use(
   "/*",
