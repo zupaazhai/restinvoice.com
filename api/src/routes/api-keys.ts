@@ -1,6 +1,8 @@
 import { getAuth } from "@hono/clerk-auth";
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import { ApiKeySchema, CreateApiKeySchema } from "../models/api-keys";
+import { PaginatedResponseSchema, PaginationQuerySchema } from "../models/pagination";
+import { db } from "../utils/db";
 
 const apiKeys = new OpenAPIHono<{
   Bindings: {
@@ -13,14 +15,14 @@ const apiKeys = new OpenAPIHono<{
 const listApiKeysRoute = createRoute({
   method: "get",
   path: "/",
+  request: {
+    query: PaginationQuerySchema,
+  },
   responses: {
     200: {
       content: {
         "application/json": {
-          schema: z.object({
-            success: z.boolean(),
-            data: z.array(ApiKeySchema),
-          }),
+          schema: PaginatedResponseSchema(ApiKeySchema),
         },
       },
       description: "List all API keys for the current user",
@@ -95,15 +97,18 @@ apiKeys.openapi(listApiKeysRoute, async (c) => {
     return c.json({ message: "Unauthorized" }, 401);
   }
 
-  const { results } = await c.env.DB.prepare(
-    "SELECT * FROM api_keys WHERE user_id = ? ORDER BY created_at DESC"
-  )
-    .bind(auth.userId)
-    .all();
+  const { page, per_page } = c.req.valid("query");
+
+  const results = await db(c.env.DB)
+    .table("api_keys")
+    .where("user_id", auth.userId)
+    .orderBy("created_at", "desc")
+    .paginate(page, per_page);
 
   return c.json({
     success: true,
-    data: results,
+    data: results.data,
+    meta: results.meta,
   });
 });
 
