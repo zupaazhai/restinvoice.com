@@ -33,6 +33,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import type { ApiKey } from "@/types/api-key.types";
 
 const formSchema = z.object({
 	name: z.string().min(1, "Name is required"),
@@ -41,7 +42,12 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-export function CreateApiKeyDialog({ children }: { children?: React.ReactNode }) {
+interface CreateApiKeyDialogProps {
+	children?: React.ReactNode;
+	onCreate?: (apiKey: ApiKey) => void;
+}
+
+export function CreateApiKeyDialog({ children, onCreate }: CreateApiKeyDialogProps) {
 	const [open, setOpen] = useState(false);
 	const [step, setStep] = useState<"form" | "loading" | "success">("form");
 	const [generatedKey, setGeneratedKey] = useState<string | null>(null);
@@ -54,15 +60,35 @@ export function CreateApiKeyDialog({ children }: { children?: React.ReactNode })
 		},
 	});
 
-	const onSubmit = async (_data: FormValues) => {
+	const onSubmit = async (data: FormValues) => {
 		setStep("loading");
 		// Mock API call
 		setTimeout(() => {
 			// Generate a fake key for demonstration
-			const mockKey = `sk_${Math.random().toString(36).substring(2, 15)}_${Math.random().toString(36).substring(2, 15)}`;
-			setGeneratedKey(mockKey);
+			const token = `sk_${Math.random().toString(36).substring(2, 15)}_${Math.random().toString(36).substring(2, 15)}`;
+			const expiresAt = new Date();
+			if (data.expiresIn !== "forever") {
+				const days = parseInt(data.expiresIn, 10);
+				expiresAt.setDate(expiresAt.getDate() + days);
+			} else {
+				// handled as null in implementation for forever
+			}
+
+			const newKey: ApiKey = {
+				id: Math.random().toString(36).substring(2, 9),
+				name: data.name,
+				token: token,
+				expiresAt: data.expiresIn !== "forever" ? expiresAt : null,
+				createdAt: new Date(),
+			};
+
+			setGeneratedKey(token);
 			setStep("success");
-		}, 3000);
+
+			if (onCreate) {
+				onCreate(newKey);
+			}
+		}, 1500);
 	};
 
 	const handleOpenChange = (newOpen: boolean) => {
