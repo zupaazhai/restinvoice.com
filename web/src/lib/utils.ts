@@ -37,3 +37,5 @@ export function formatNumber(
 		...otherOptions,
 	}).format(number);
 }
+
+export const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
