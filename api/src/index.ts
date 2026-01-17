@@ -2,6 +2,7 @@ import { clerkMiddleware } from "@hono/clerk-auth";
 import { swaggerUI } from "@hono/swagger-ui";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { cors } from "hono/cors";
+import apiKeys from "./routes/api-keys";
 import templates from "./routes/templates";
 
 const app = new OpenAPIHono();
@@ -20,6 +21,7 @@ app.use(
 // v1 Router
 const v1 = new OpenAPIHono();
 v1.route("/templates", templates);
+v1.route("/api-keys", apiKeys);
 
 // Mount v1
 app.route("/v1", v1);

@@ -166,9 +166,9 @@ PATCH  /users/me             → Update profile
 
 #### API Keys
 ```
-GET    /api-keys             → List all API keys
-POST   /api-keys             → Create new API key
-DELETE /api-keys/:id         → Revoke API key
+GET    /v1/api-keys             → List all API keys
+POST   /v1/api-keys             → Create new API key
+DELETE /v1/api-keys/:key        → Revoke API key
 ```
 
 #### Templates
@@ -440,14 +440,10 @@ CREATE TABLE users (
 
 -- API Keys
 CREATE TABLE api_keys (
-  id TEXT PRIMARY KEY,
-  user_id TEXT NOT NULL REFERENCES users(id),
-  key_hash TEXT NOT NULL,
-  key_prefix TEXT NOT NULL,  -- First 8 chars for identification
-  name TEXT,
-  is_test BOOLEAN DEFAULT FALSE,
-  last_used_at DATETIME,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  key TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  expired_at INTEGER,
+  created_at INTEGER DEFAULT (unixepoch())
 );
 
 -- Templates
