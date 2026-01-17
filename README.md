@@ -98,6 +98,7 @@ restinvoice/
 - **TailwindCSS 4** - Utility-first CSS framework
 - **Shadcn UI** - Pre-built accessible components
 - **React Router 7** - Client-side routing
+- **Clerk** - User Management & Authentication
 - **Biome** - Linting, formatting, and type checking
 
 **Responsive Design**:
@@ -150,6 +151,7 @@ See `web/design-concept.md` for detailed UI/UX standards including:
 - **Cloudflare D1** - SQLite database at the edge
 - **Cloudflare KV** - Key-value storage for caching
 - **Cloudflare R2** - Object storage for generated PDFs
+- **@hono/clerk-auth** - Clerk Middleware for Hono
 
 **API Endpoints**:
 
@@ -401,7 +403,7 @@ Users can create custom HTML templates with:
 ## 🔐 Security Model
 
 ### Authentication
-- **Dashboard**: JWT-based session tokens (access + refresh)
+- **Dashboard**: Clerk Authentication (JWT-based)
 - **Public API**: API Key authentication via `Authorization: Bearer {key}`
 
 ### API Key Format
@@ -523,11 +525,14 @@ docker-compose up    # http://localhost:8080
 ```env
 VITE_API_URL=http://localhost:8787
 VITE_STRIPE_PUBLIC_KEY=pk_test_xxx
+VITE_CLERK_PUBLISHABLE_KEY=pk_test_xxx
 ```
 
 **API** (`.dev.vars`):
 ```env
 JWT_SECRET=your-secret-key
+CLERK_PUBLISHABLE_KEY=pk_test_xxx
+CLERK_SECRET_KEY=sk_test_xxx
 STRIPE_SECRET_KEY=sk_test_xxx
 STRIPE_WEBHOOK_SECRET=whsec_xxx
 WORKER_URL=http://localhost:8080
