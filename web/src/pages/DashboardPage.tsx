@@ -1,5 +1,6 @@
 import { Calendar, Coins, Home, Zap } from "lucide-react";
 import { CodeExamples } from "@/components/dashboard/CodeExamples";
+import { InvoiceTester } from "@/components/dashboard/InvoiceTester";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { PageHeader } from "@/components/ui/page-header";
 import { formatNumber } from "@/lib/utils";
@@ -43,9 +44,19 @@ export function DashboardPage() {
 				</div>
 			</section>
 
-			{/* Code Examples Section */}
+			{/* Code Examples and Tester Section */}
 			<section>
-				<CodeExamples />
+				<div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+					{/* Code Examples: Order-2 on mobile (bottom), Order-1 on desktop (left) */}
+					<div className="order-2 lg:order-1 lg:col-span-2">
+						<CodeExamples />
+					</div>
+
+					{/* Invoice Tester: Order-1 on mobile (top), Order-2 on desktop (right) */}
+					<div className="order-1 lg:order-2 lg:col-span-1">
+						<InvoiceTester />
+					</div>
+				</div>
 			</section>
 		</div>
 	);
