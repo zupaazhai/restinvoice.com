@@ -14,8 +14,32 @@ import {
 import { PageHeader } from "@/components/ui/page-header";
 import type { ApiKey } from "@/types/api-key.types";
 
+const MOCK_KEYS: ApiKey[] = [
+	{
+		id: "1",
+		name: "Development Key",
+		token: "sk_test_123456789",
+		expiresAt: null,
+		createdAt: new Date().toISOString(),
+	},
+	{
+		id: "2",
+		name: "Production Key - This is a very long name to test table responsiveness and truncation behavior on different screen sizes",
+		token: "sk_live_987654321",
+		expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30).toISOString(),
+		createdAt: new Date().toISOString(),
+	},
+	{
+		id: "3",
+		name: "Mobile App Key",
+		token: "sk_mobile_555555555",
+		expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 365).toISOString(),
+		createdAt: new Date().toISOString(),
+	},
+];
+
 export function ApiKeysPage() {
-	const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
+	const [apiKeys, setApiKeys] = useState<ApiKey[]>(MOCK_KEYS);
 
 	const handleCreate = (newKey: ApiKey) => {
 		setApiKeys((prev) => [newKey, ...prev]);
