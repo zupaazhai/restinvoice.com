@@ -1,11 +1,13 @@
-import { Check, Code2, Copy } from "lucide-react";
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Code2 } from "lucide-react";
+import { CodeBlock } from "@/components/ui/code-block";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const CODE_EXAMPLES = {
-	curl: `curl -X POST https://api.restinvoice.com/v1/invoices/generate \\
+	curl: {
+		label: "cURL",
+		language: "bash",
+		code: `curl -X POST https://api.restinvoice.com/v1/invoices/generate \\
   -H "Authorization: Bearer YOUR_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -19,9 +21,12 @@ const CODE_EXAMPLES = {
         { "description": "Web Development", "quantity": 10, "unit_price": 150 }
       ]
     }
-  }'`,
-
-	nodejs: `import fetch from 'node-fetch';
+  }'`
+	},
+	nodejs: {
+		label: "Node.js",
+		language: "javascript",
+		code: `import fetch from 'node-fetch';
 
 const response = await fetch('https://api.restinvoice.com/v1/invoices/generate', {
   method: 'POST',
@@ -44,9 +49,12 @@ const response = await fetch('https://api.restinvoice.com/v1/invoices/generate',
 });
 
 const result = await response.json();
-console.log(result);`,
-
-	php: `<?php
+console.log(result);`
+	},
+	php: {
+		label: "PHP",
+		language: "php",
+		code: `<?php
 $ch = curl_init('https://api.restinvoice.com/v1/invoices/generate');
 
 $data = [
@@ -75,9 +83,12 @@ curl_setopt_array($ch, [
 $response = curl_exec($ch);
 curl_close($ch);
 
-print_r(json_decode($response, true));`,
-
-	go: `package main
+print_r(json_decode($response, true));`
+	},
+	go: {
+		label: "Go",
+		language: "go",
+		code: `package main
 
 import (
     "bytes"
@@ -110,9 +121,12 @@ func main() {
     defer resp.Body.Close()
 
     fmt.Println("Status:", resp.Status)
-}`,
-
-	rust: `use reqwest::header::{AUTHORIZATION, CONTENT_TYPE};
+}`
+	},
+	rust: {
+		label: "Rust",
+		language: "rust",
+		code: `use reqwest::header::{AUTHORIZATION, CONTENT_TYPE};
 use serde_json::json;
 
 #[tokio::main]
@@ -142,50 +156,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!("Status: {}", response.status());
     Ok(())
-}`,
-} as const;
-
-type Language = keyof typeof CODE_EXAMPLES;
-
-const LANGUAGE_LABELS: Record<Language, string> = {
-	curl: "cURL",
-	nodejs: "Node.js",
-	php: "PHP",
-	go: "Go",
-	rust: "Rust",
+}`
+	}
 };
 
-function CodeBlock({ code }: { code: string }) {
-	const [copied, setCopied] = useState(false);
-
-	const handleCopy = async () => {
-		await navigator.clipboard.writeText(code);
-		setCopied(true);
-		setTimeout(() => setCopied(false), 2000);
-	};
-
-	return (
-		<div className="relative">
-			<Button
-				variant="ghost"
-				size="icon-sm"
-				className="absolute right-3 top-3"
-				onClick={handleCopy}
-				aria-label={copied ? "Copied" : "Copy code"}
-			>
-				{copied ? <Check className="h-4 w-4 text-chart-1" /> : <Copy className="h-4 w-4" />}
-			</Button>
-			<pre className="overflow-x-auto rounded-lg bg-muted p-4 font-mono text-sm leading-relaxed">
-				<code className="text-foreground">{code}</code>
-			</pre>
-		</div>
-	);
-}
+type ExampleKey = keyof typeof CODE_EXAMPLES;
 
 export function CodeExamples() {
 	return (
-		<Card className="rounded-xl border py-6 gap-6">
-			<CardHeader className="px-6">
+		<Card className="flex flex-col gap-6 rounded-xl border py-6">
+			<CardHeader className="px-6 pb-0">
 				<div className="flex items-center gap-3">
 					<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
 						<Code2 className="h-5 w-5 text-primary" />
@@ -199,17 +179,20 @@ export function CodeExamples() {
 				</div>
 			</CardHeader>
 			<CardContent className="px-6">
-				<Tabs defaultValue="curl">
+				<Tabs defaultValue="curl" className="w-full">
 					<TabsList className="mb-4">
-						{(Object.keys(CODE_EXAMPLES) as Language[]).map((lang) => (
-							<TabsTrigger key={lang} value={lang}>
-								{LANGUAGE_LABELS[lang]}
+						{(Object.keys(CODE_EXAMPLES) as ExampleKey[]).map((key) => (
+							<TabsTrigger key={key} value={key}>
+								{CODE_EXAMPLES[key].label}
 							</TabsTrigger>
 						))}
 					</TabsList>
-					{(Object.entries(CODE_EXAMPLES) as [Language, string][]).map(([lang, code]) => (
-						<TabsContent key={lang} value={lang}>
-							<CodeBlock code={code} />
+					{(Object.keys(CODE_EXAMPLES) as ExampleKey[]).map((key) => (
+						<TabsContent key={key} value={key} className="mt-0">
+							<CodeBlock
+								language={CODE_EXAMPLES[key].language}
+								code={CODE_EXAMPLES[key].code}
+							/>
 						</TabsContent>
 					))}
 				</Tabs>
