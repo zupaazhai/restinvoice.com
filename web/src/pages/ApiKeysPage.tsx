@@ -1,4 +1,5 @@
 import { Key } from "lucide-react";
+import { CreateApiKeyDialog } from "@/components/api-keys/create-api-key-dialog";
 import { Button } from "@/components/ui/button";
 import {
 	Empty,
@@ -17,12 +18,7 @@ export function ApiKeysPage() {
 				icon={Key}
 				title="API Keys"
 				description="Manage your API keys for authentication"
-				action={
-					<Button variant="default" className="w-full sm:w-auto">
-						<Key className="h-4 w-4" />
-						Create API Key
-					</Button>
-				}
+				action={<CreateApiKeyDialog />}
 			/>
 
 			<Empty className="min-h-[400px] border border-border bg-card">
@@ -36,10 +32,12 @@ export function ApiKeysPage() {
 					</EmptyDescription>
 				</EmptyHeader>
 				<EmptyContent>
-					<Button variant="default">
-						<Key className="h-4 w-4" />
-						Create Your First Key
-					</Button>
+					<CreateApiKeyDialog>
+						<Button variant="default">
+							<Key className="h-4 w-4" />
+							Create Your First Key
+						</Button>
+					</CreateApiKeyDialog>
 				</EmptyContent>
 			</Empty>
 		</div>
