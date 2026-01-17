@@ -29,11 +29,7 @@ export function CodeBlock({ language, code, className }: CodeBlockProps) {
 				onClick={handleCopy}
 				aria-label={copied ? "Copied" : "Copy code"}
 			>
-				{copied ? (
-					<Check className="h-4 w-4 text-green-400" />
-				) : (
-					<Copy className="h-4 w-4" />
-				)}
+				{copied ? <Check className="h-4 w-4 text-green-400" /> : <Copy className="h-4 w-4" />}
 			</Button>
 			<SyntaxHighlighter
 				language={language}

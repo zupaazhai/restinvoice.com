@@ -37,9 +37,7 @@ export function InvoiceTester() {
 					</div>
 					<div>
 						<CardTitle className="text-lg">Test Invoice</CardTitle>
-						<p className="text-sm text-muted-foreground">
-							Quickly generate a test invoice
-						</p>
+						<p className="text-sm text-muted-foreground">Quickly generate a test invoice</p>
 					</div>
 				</div>
 			</CardHeader>
@@ -57,7 +55,10 @@ export function InvoiceTester() {
 									<ChevronDown className="h-4 w-4 opacity-50" />
 								</Button>
 							</DropdownMenuTrigger>
-							<DropdownMenuContent align="start" className="w-[--radix-dropdown-menu-trigger-width]">
+							<DropdownMenuContent
+								align="start"
+								className="w-[--radix-dropdown-menu-trigger-width]"
+							>
 								{MOCK_API_KEYS.map((key) => (
 									<DropdownMenuItem
 										key={key.value}
@@ -87,11 +88,7 @@ export function InvoiceTester() {
 				</div>
 
 				<div className="mt-auto">
-					<Button
-						className="w-full"
-						onClick={handleTest}
-						disabled={loading}
-					>
+					<Button className="w-full" onClick={handleTest} disabled={loading}>
 						{loading ? (
 							"Generating..."
 						) : (

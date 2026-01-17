@@ -1,6 +1,7 @@
 import { Search } from "lucide-react";
 import { useState } from "react";
 import { TemplateCard } from "@/components/templates/TemplateCard";
+import { TemplateSkeleton } from "@/components/templates/TemplateSkeleton";
 import {
 	Empty,
 	EmptyContent,
@@ -16,11 +17,16 @@ import type { Template, TemplateType } from "@/types/template.types";
 type FilterType = "all" | TemplateType;
 
 interface TemplateListProps {
+	/** Array of templates to display */
 	templates: Template[];
+	/** Custom empty state title */
 	emptyStateTitle?: string;
+	/** Custom empty state description */
 	emptyStateDescription?: string;
 	/** When true, clicking template thumbnail navigates to edit page */
 	editable?: boolean;
+	/** Loading state */
+	isLoading?: boolean;
 }
 
 export function TemplateList({
@@ -28,9 +34,34 @@ export function TemplateList({
 	emptyStateTitle = "No Templates Found",
 	emptyStateDescription = "Try adjusting your search or filter to find what you're looking for.",
 	editable = false,
+	isLoading = false,
 }: TemplateListProps) {
 	const [searchQuery, setSearchQuery] = useState("");
 	const [typeFilter, setTypeFilter] = useState<FilterType>("all");
+
+	// Loading State
+	if (isLoading) {
+		return (
+			<div className="space-y-6">
+				{/* Loading Filter Bar */}
+				<div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+					<div className="w-full md:w-64">
+						<div className="h-10 w-full rounded-lg bg-muted animate-pulse" />
+					</div>
+					<div className="w-full md:w-80">
+						<div className="h-10 w-full rounded-md bg-muted animate-pulse" />
+					</div>
+				</div>
+				{/* Loading Grid */}
+				<div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 md:gap-6">
+					{Array.from({ length: 8 }).map((_, i) => (
+						// biome-ignore lint/suspicious/noArrayIndexKey: Skeletons are static
+						<TemplateSkeleton key={i} />
+					))}
+				</div>
+			</div>
+		);
+	}
 
 	// Filter templates based on search query and type
 	const filteredTemplates = templates.filter((template) => {

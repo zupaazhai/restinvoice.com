@@ -1,6 +1,6 @@
 import { Code2 } from "lucide-react";
-import { CodeBlock } from "@/components/ui/code-block";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CodeBlock } from "@/components/ui/code-block";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const CODE_EXAMPLES = {
@@ -21,7 +21,7 @@ const CODE_EXAMPLES = {
         { "description": "Web Development", "quantity": 10, "unit_price": 150 }
       ]
     }
-  }'`
+  }'`,
 	},
 	nodejs: {
 		label: "Node.js",
@@ -49,7 +49,7 @@ const response = await fetch('https://api.restinvoice.com/v1/invoices/generate',
 });
 
 const result = await response.json();
-console.log(result);`
+console.log(result);`,
 	},
 	php: {
 		label: "PHP",
@@ -83,7 +83,7 @@ curl_setopt_array($ch, [
 $response = curl_exec($ch);
 curl_close($ch);
 
-print_r(json_decode($response, true));`
+print_r(json_decode($response, true));`,
 	},
 	go: {
 		label: "Go",
@@ -121,7 +121,7 @@ func main() {
     defer resp.Body.Close()
 
     fmt.Println("Status:", resp.Status)
-}`
+}`,
 	},
 	rust: {
 		label: "Rust",
@@ -156,8 +156,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!("Status: {}", response.status());
     Ok(())
-}`
-	}
+}`,
+	},
 };
 
 type ExampleKey = keyof typeof CODE_EXAMPLES;
@@ -189,10 +189,7 @@ export function CodeExamples() {
 					</TabsList>
 					{(Object.keys(CODE_EXAMPLES) as ExampleKey[]).map((key) => (
 						<TabsContent key={key} value={key} className="mt-0">
-							<CodeBlock
-								language={CODE_EXAMPLES[key].language}
-								code={CODE_EXAMPLES[key].code}
-							/>
+							<CodeBlock language={CODE_EXAMPLES[key].language} code={CODE_EXAMPLES[key].code} />
 						</TabsContent>
 					))}
 				</Tabs>

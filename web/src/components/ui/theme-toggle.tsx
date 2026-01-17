@@ -8,9 +8,7 @@ export function ThemeToggle() {
 	const toggleTheme = () => {
 		// If currently system, check what system resolves to
 		if (theme === "system") {
-			const systemIsDark = window.matchMedia(
-				"(prefers-color-scheme: dark)"
-			).matches;
+			const systemIsDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
 			setTheme(systemIsDark ? "light" : "dark");
 			return;
 		}
