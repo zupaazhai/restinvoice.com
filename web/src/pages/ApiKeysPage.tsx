@@ -14,14 +14,7 @@ import {
 	EmptyTitle,
 } from "@/components/ui/empty";
 import { PageHeader } from "@/components/ui/page-header";
-import {
-	Pagination,
-	PaginationContent,
-	PaginationItem,
-	PaginationLink,
-	PaginationNext,
-	PaginationPrevious,
-} from "@/components/ui/pagination";
+import { PaginationControl } from "@/components/ui/pagination-control";
 import { apiKeysApi } from "@/lib/api/modules/api-keys";
 import type { ApiKey } from "@/types/api-key.types";
 import type { PaginationMeta } from "@/types/pagination.types";
@@ -86,39 +79,11 @@ export function ApiKeysPage() {
 					<ApiKeyTable apiKeys={apiKeys} onDelete={handleDelete} />
 
 					{meta && meta.last_page > 1 && (
-						<Pagination>
-							<PaginationContent>
-								<PaginationItem>
-									<PaginationPrevious
-										href="#"
-										onClick={(e) => {
-											e.preventDefault();
-											if (page > 1) setPage(page - 1);
-										}}
-										className={page <= 1 ? "pointer-events-none opacity-50" : ""}
-									/>
-								</PaginationItem>
-
-								{/* Simple pagination logic: show current page */}
-								{/* In a real app we might want to show range of pages */}
-								<PaginationItem>
-									<PaginationLink href="#" isActive onClick={(e) => e.preventDefault()}>
-										{page}
-									</PaginationLink>
-								</PaginationItem>
-
-								<PaginationItem>
-									<PaginationNext
-										href="#"
-										onClick={(e) => {
-											e.preventDefault();
-											if (page < meta.last_page) setPage(page + 1);
-										}}
-										className={page >= meta.last_page ? "pointer-events-none opacity-50" : ""}
-									/>
-								</PaginationItem>
-							</PaginationContent>
-						</Pagination>
+						<PaginationControl
+							page={page}
+							total={meta.last_page}
+							onChange={(newPage) => setPage(newPage)}
+						/>
 					)}
 				</div>
 			) : (
