@@ -1,10 +1,6 @@
 import { z } from "@hono/zod-openapi";
 
 export const ApiKeySchema = z.object({
-  id: z.string().openapi({
-    example: "abc12345",
-    description: "The API Key ID (Public Reference)",
-  }),
   ref: z.string().openapi({
     example: "abc12345",
     description: "The API Key Reference",

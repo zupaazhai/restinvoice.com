@@ -70,7 +70,7 @@ const createApiKeyRoute = createRoute({
 
 const revokeApiKeyRoute = createRoute({
   method: "delete",
-  path: "/:id",
+  path: "/:ref",
   responses: {
     200: {
       content: {
@@ -105,6 +105,7 @@ apiKeys.openapi(listApiKeysRoute, async (c) => {
     .table("api_keys")
     .where("user_id", auth.userId)
     .orderBy("created_at", "desc")
+    .select(["ref", "user_id", "name", "created_at", "expired_at"])
     .paginate(page, per_page);
 
   return c.json({
@@ -150,9 +151,9 @@ apiKeys.openapi(createApiKeyRoute, async (c) => {
   try {
     // 1. Store in D1 (Metadata only, NO SECRET)
     await c.env.DB.prepare(
-      "INSERT INTO api_keys (id, ref, user_id, name, created_at, expired_at) VALUES (?, ?, ?, ?, ?, ?)"
+      "INSERT INTO api_keys (ref, user_id, name, created_at, expired_at) VALUES (?, ?, ?, ?, ?)"
     )
-      .bind(ref, ref, auth.userId, name || null, now, expired_at)
+      .bind(ref, auth.userId, name || null, now, expired_at)
       .run();
 
     // 2. Store in KV (Secret)
@@ -171,7 +172,6 @@ apiKeys.openapi(createApiKeyRoute, async (c) => {
       {
         success: true,
         data: {
-          id: ref,
           ref,
           key,
           name: name || null,
@@ -194,31 +194,25 @@ apiKeys.openapi(revokeApiKeyRoute, async (c) => {
     return c.json({ message: "Unauthorized" }, 401);
   }
 
-  const id = c.req.param("id");
+  const id = c.req.param("ref");
 
   try {
-    // Verify ownership and get ref (though id is ref in our logic)
+    // Verify ownership and get ref
     // We check D1 first to ensure it exists and belongs to user
-    const existing = await c.env.DB.prepare("SELECT ref FROM api_keys WHERE id = ? AND user_id = ?")
+    const existing = await c.env.DB.prepare("SELECT ref FROM api_keys WHERE ref = ? AND user_id = ?")
       .bind(id, auth.userId)
       .first<{ ref: string }>();
 
     if (!existing) {
-      // Idempotent success or 404? Spec said idempotent success for non-existent.
-      // But if it exists but different user, we also might want to return success to avoid leaking existence.
-      // However, if we want to confirm deletion, we proceed.
-      // If it's not in DB, we consider it "gone".
-      // We should also try to delete from KV just in case.
-      // But we need the ref. If 'id' IS 'ref', we can try deleting from KV anyway.
+      // Idempotent success
     }
 
     // Delete from D1
-    await c.env.DB.prepare("DELETE FROM api_keys WHERE id = ? AND user_id = ?")
+    await c.env.DB.prepare("DELETE FROM api_keys WHERE ref = ? AND user_id = ?")
       .bind(id, auth.userId)
       .run();
 
     // If we deleted from D1, we delete from KV.
-    // If we didn't find it in D1, we might still want to try 'id' as key for KV.
     await c.env.RESTINVOICE_API_KEY.delete(id);
 
     return c.json({
