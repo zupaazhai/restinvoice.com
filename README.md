@@ -440,8 +440,10 @@ CREATE TABLE users (
 
 -- API Keys
 CREATE TABLE api_keys (
-  key TEXT PRIMARY KEY,
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  ref TEXT NOT NULL,
   user_id TEXT NOT NULL,
+  name TEXT,
   expired_at INTEGER,
   created_at INTEGER DEFAULT (unixepoch())
 );
