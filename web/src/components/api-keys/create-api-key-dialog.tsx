@@ -33,11 +33,12 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import { apiKeysApi } from "@/lib/api/modules/api-keys";
 import type { ApiKey } from "@/types/api-key.types";
 
 const formSchema = z.object({
 	name: z.string().min(1, "Name is required"),
-	expiresIn: z.enum(["7d", "30d", "60d", "180d", "365d", "forever"]),
+	expiresIn: z.enum(["7d", "30d", "60d", "180d", "1y", "never"]),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -47,7 +48,10 @@ interface CreateApiKeyDialogProps {
 	onCreate?: (apiKey: ApiKey) => void;
 }
 
+import { useAuth } from "@clerk/clerk-react";
+
 export function CreateApiKeyDialog({ children, onCreate }: CreateApiKeyDialogProps) {
+	const { getToken } = useAuth();
 	const [open, setOpen] = useState(false);
 	const [step, setStep] = useState<"form" | "loading" | "success">("form");
 	const [generatedKey, setGeneratedKey] = useState<string | null>(null);
@@ -56,39 +60,41 @@ export function CreateApiKeyDialog({ children, onCreate }: CreateApiKeyDialogPro
 		resolver: zodResolver(formSchema),
 		defaultValues: {
 			name: "",
-			expiresIn: "365d",
+			expiresIn: "1y",
 		},
 	});
 
 	const onSubmit = async (data: FormValues) => {
 		setStep("loading");
-		// Mock API call
-		setTimeout(() => {
-			// Generate a fake key for demonstration
-			const token = `sk_${Math.random().toString(36).substring(2, 15)}_${Math.random().toString(36).substring(2, 15)}`;
-			const expiresAt = new Date();
-			if (data.expiresIn !== "forever") {
-				const days = parseInt(data.expiresIn, 10);
-				expiresAt.setDate(expiresAt.getDate() + days);
-			} else {
-				// handled as null in implementation for forever
-			}
+		try {
+			const token = await getToken();
+			const response = await apiKeysApi.create(
+				{
+					name: data.name,
+					expires_in: data.expiresIn,
+				},
+				token
+			);
 
-			const newKey: ApiKey = {
-				id: Math.random().toString(36).substring(2, 9),
-				name: data.name,
-				token: token,
-				expiresAt: data.expiresIn !== "forever" ? expiresAt : null,
-				createdAt: new Date(),
-			};
+			const newKey = response.data;
 
-			setGeneratedKey(token);
+			setGeneratedKey(newKey.key);
 			setStep("success");
 
 			if (onCreate) {
-				onCreate(newKey);
+				onCreate({
+					id: newKey.id,
+					name: newKey.name,
+					token: newKey.key, // API returns 'key' as the secret
+					expiresAt: newKey.expired_at ? new Date(newKey.expired_at * 1000).toISOString() : null,
+					createdAt: new Date(newKey.created_at * 1000).toISOString(),
+				});
 			}
-		}, 1500);
+		} catch (error) {
+			console.error("Failed to create API key:", error);
+			// TODO: Show error toast
+			setStep("form"); // Go back to form on error
+		}
 	};
 
 	const handleOpenChange = (newOpen: boolean) => {
@@ -101,7 +107,7 @@ export function CreateApiKeyDialog({ children, onCreate }: CreateApiKeyDialogPro
 			// specific for react-hook-form to ensure fresh state
 			form.reset({
 				name: "",
-				expiresIn: "365d",
+				expiresIn: "1y",
 			});
 			form.clearErrors();
 		}
@@ -178,8 +184,8 @@ export function CreateApiKeyDialog({ children, onCreate }: CreateApiKeyDialogPro
 													<SelectItem value="30d">1 Month</SelectItem>
 													<SelectItem value="60d">2 Months</SelectItem>
 													<SelectItem value="180d">6 Months</SelectItem>
-													<SelectItem value="365d">1 Year (Default)</SelectItem>
-													<SelectItem value="forever">Never Expires</SelectItem>
+													<SelectItem value="1y">1 Year (Default)</SelectItem>
+													<SelectItem value="never">Never Expires</SelectItem>
 												</SelectContent>
 											</Select>
 											<FormMessage />
