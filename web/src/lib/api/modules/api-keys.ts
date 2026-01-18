@@ -29,7 +29,10 @@ interface RawApiKey {
 export const apiKeysApi = {
 	list: async (params?: { page?: number; per_page?: number; token?: string | null }) => {
 		const response = await client.get<PaginatedResponse<RawApiKey>>("/v1/api-keys", {
-			...params,
+			query: {
+				page: params?.page,
+				per_page: params?.per_page,
+			},
 			token: params?.token,
 		});
 

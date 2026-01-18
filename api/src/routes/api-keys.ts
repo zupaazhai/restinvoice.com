@@ -129,7 +129,7 @@ apiKeys.openapi(createApiKeyRoute, async (c) => {
 
   const now = Math.floor(Date.now() / 1000);
   let expired_at: number | null = null;
-  let expirationTtl: number | undefined = undefined;
+  let expirationTtl: number | undefined;
 
   if (expires_in && expires_in !== "never") {
     const day = 24 * 60 * 60;
@@ -199,7 +199,9 @@ apiKeys.openapi(revokeApiKeyRoute, async (c) => {
   try {
     // Verify ownership and get ref
     // We check D1 first to ensure it exists and belongs to user
-    const existing = await c.env.DB.prepare("SELECT ref FROM api_keys WHERE ref = ? AND user_id = ?")
+    const existing = await c.env.DB.prepare(
+      "SELECT ref FROM api_keys WHERE ref = ? AND user_id = ?"
+    )
       .bind(id, auth.userId)
       .first<{ ref: string }>();
 

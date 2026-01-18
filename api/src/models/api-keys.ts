@@ -31,17 +31,14 @@ export const ApiKeyCreateResponseSchema = ApiKeySchema.extend({
 });
 
 export const CreateApiKeySchema = z.object({
-  name: z.string().optional().openapi({
+  name: z.string().max(150).optional().openapi({
     example: "My Production Key",
     description: "Friendly name for the API Key",
   }),
-  expires_in: z
-    .enum(["7d", "30d", "60d", "90d", "180d", "1y", "never"])
-    .optional()
-    .openapi({
-      example: "30d",
-      description: "Expiration duration",
-    }),
+  expires_in: z.enum(["7d", "30d", "60d", "90d", "180d", "1y", "never"]).optional().openapi({
+    example: "30d",
+    description: "Expiration duration",
+  }),
 });
 
 export const ApiKeyResponseSchema = z.object({

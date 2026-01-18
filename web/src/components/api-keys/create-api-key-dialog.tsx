@@ -37,7 +37,7 @@ import { apiKeysApi } from "@/lib/api/modules/api-keys";
 import type { ApiKey } from "@/types/api-key.types";
 
 const formSchema = z.object({
-	name: z.string().min(1, "Name is required"),
+	name: z.string().min(1, "Name is required").max(150, "Name must be less than 150 characters"),
 	expiresIn: z.enum(["7d", "30d", "60d", "180d", "1y", "never"]),
 });
 

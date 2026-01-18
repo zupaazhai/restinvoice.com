@@ -5,7 +5,13 @@ export class ApiClient {
 		this.baseUrl = baseUrl || import.meta.env.VITE_API_URL || "http://localhost:8787";
 	}
 
-	async get<T>(path: string, options?: RequestInit & { token?: string | null }): Promise<T> {
+	async get<T>(
+		path: string,
+		options?: RequestInit & {
+			token?: string | null;
+			query?: Record<string, string | number | undefined | null>;
+		}
+	): Promise<T> {
 		const headers: HeadersInit = {
 			"Content-Type": "application/json",
 			...options?.headers,
@@ -15,7 +21,21 @@ export class ApiClient {
 			(headers as Record<string, string>).Authorization = `Bearer ${options.token}`;
 		}
 
-		const response = await fetch(`${this.baseUrl}${path}`, {
+		let url = `${this.baseUrl}${path}`;
+		if (options?.query) {
+			const searchParams = new URLSearchParams();
+			Object.entries(options.query).forEach(([key, value]) => {
+				if (value !== undefined && value !== null) {
+					searchParams.append(key, String(value));
+				}
+			});
+			const queryString = searchParams.toString();
+			if (queryString) {
+				url += `?${queryString}`;
+			}
+		}
+
+		const response = await fetch(url, {
 			...options,
 			headers,
 		});
