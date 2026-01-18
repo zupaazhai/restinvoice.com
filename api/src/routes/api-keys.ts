@@ -1,12 +1,14 @@
 import { getAuth } from "@hono/clerk-auth";
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
-import { ApiKeySchema, CreateApiKeySchema } from "../models/api-keys";
+import { ApiKeyCreateResponseSchema, ApiKeySchema, CreateApiKeySchema } from "../models/api-keys";
 import { PaginatedResponseSchema, PaginationQuerySchema } from "../models/pagination";
+import { generateApiKey } from "../utils/crypto";
 import { db } from "../utils/db";
 
 const apiKeys = new OpenAPIHono<{
   Bindings: {
     DB: D1Database;
+    RESTINVOICE_API_KEY: KVNamespace;
   };
 }>();
 
@@ -51,7 +53,7 @@ const createApiKeyRoute = createRoute({
         "application/json": {
           schema: z.object({
             success: z.boolean(),
-            data: ApiKeySchema,
+            data: ApiKeyCreateResponseSchema,
           }),
         },
       },
@@ -68,7 +70,7 @@ const createApiKeyRoute = createRoute({
 
 const revokeApiKeyRoute = createRoute({
   method: "delete",
-  path: "/:key",
+  path: "/:id",
   responses: {
     200: {
       content: {
@@ -118,25 +120,40 @@ apiKeys.openapi(createApiKeyRoute, async (c) => {
     return c.json({ message: "Unauthorized" }, 401);
   }
 
+  const { name } = c.req.valid("json");
+
   // Generate Key
-  const keyBase = crypto.randomUUID().replace(/-/g, "");
-  // TODO: Use env var or similar for environment prefix
-  const key = `riv_test_${keyBase}`;
+  // TODO: Use env var or similar for environment prefix, defaulting to 'test' for now
+  const { key, ref, secret } = await generateApiKey("test");
 
   const now = Math.floor(Date.now() / 1000);
 
   try {
-    await c.env.DB.prepare("INSERT INTO api_keys (key, user_id, created_at) VALUES (?, ?, ?)")
-      .bind(key, auth.userId, now)
+    // 1. Store in D1 (Metadata only, NO SECRET)
+    await c.env.DB.prepare(
+      "INSERT INTO api_keys (id, ref, user_id, name, created_at) VALUES (?, ?, ?, ?, ?)"
+    )
+      .bind(ref, ref, auth.userId, name || null, now)
       .run();
+
+    // 2. Store in KV (Secret)
+    await c.env.RESTINVOICE_API_KEY.put(
+      ref,
+      JSON.stringify({
+        secret,
+        user_id: auth.userId,
+      })
+    );
 
     return c.json(
       {
         success: true,
         data: {
+          id: ref,
+          ref,
           key,
+          name: name || null,
           user_id: auth.userId,
-          expired_at: null,
           created_at: now,
         },
       },
@@ -154,12 +171,32 @@ apiKeys.openapi(revokeApiKeyRoute, async (c) => {
     return c.json({ message: "Unauthorized" }, 401);
   }
 
-  const key = c.req.param("key");
+  const id = c.req.param("id");
 
   try {
-    await c.env.DB.prepare("DELETE FROM api_keys WHERE key = ? AND user_id = ?")
-      .bind(key, auth.userId)
+    // Verify ownership and get ref (though id is ref in our logic)
+    // We check D1 first to ensure it exists and belongs to user
+    const existing = await c.env.DB.prepare("SELECT ref FROM api_keys WHERE id = ? AND user_id = ?")
+      .bind(id, auth.userId)
+      .first<{ ref: string }>();
+
+    if (!existing) {
+      // Idempotent success or 404? Spec said idempotent success for non-existent.
+      // But if it exists but different user, we also might want to return success to avoid leaking existence.
+      // However, if we want to confirm deletion, we proceed.
+      // If it's not in DB, we consider it "gone".
+      // We should also try to delete from KV just in case.
+      // But we need the ref. If 'id' IS 'ref', we can try deleting from KV anyway.
+    }
+
+    // Delete from D1
+    await c.env.DB.prepare("DELETE FROM api_keys WHERE id = ? AND user_id = ?")
+      .bind(id, auth.userId)
       .run();
+
+    // If we deleted from D1, we delete from KV.
+    // If we didn't find it in D1, we might still want to try 'id' as key for KV.
+    await c.env.RESTINVOICE_API_KEY.delete(id);
 
     return c.json({
       success: true,

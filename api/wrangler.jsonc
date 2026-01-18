@@ -9,12 +9,12 @@
   // "vars": {
   //   "MY_VAR": "my-variable"
   // },
-  // "kv_namespaces": [
-  //   {
-  //     "binding": "MY_KV_NAMESPACE",
-  //     "id": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-  //   }
-  // ],
+  "kv_namespaces": [
+    {
+      "binding": "RESTINVOICE_API_KEY",
+      "id": "65c4d55341d24c318334003a387aa979"
+    }
+  ],
   // "r2_buckets": [
   //   {
   //     "binding": "MY_BUCKET",
