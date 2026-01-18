@@ -1,3 +1,6 @@
+import { Trash } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import {
 	Table,
 	TableBody,
@@ -8,7 +11,6 @@ import {
 } from "@/components/ui/table";
 import { formatDateTime } from "@/lib/utils";
 import type { ApiKey } from "@/types/api-key.types";
-import { DeleteApiKeyAlert } from "./delete-api-key-alert";
 
 interface ApiKeyTableProps {
 	apiKeys: ApiKey[];
@@ -41,10 +43,27 @@ export function ApiKeyTable({ apiKeys, onDelete }: ApiKeyTableProps) {
 								{key.expiresAt ? formatDateTime(key.expiresAt) : "Never"}
 							</TableCell>
 							<TableCell className="text-right">
-								<DeleteApiKeyAlert
-									apiKeyId={key.id}
-									apiKeyName={key.name}
-									onDelete={async (id) => onDelete(id)}
+								<ConfirmDialog
+									trigger={
+										<Button
+											variant="ghost"
+											size="icon"
+											className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
+										>
+											<Trash className="h-4 w-4" />
+											<span className="sr-only">Delete</span>
+										</Button>
+									}
+									title="Are you absolutely sure?"
+									description={
+										<>
+											This action cannot be undone. This will permanently delete the API key &quot;
+											{key.name}&quot; and revoke its access immediately.
+										</>
+									}
+									confirmText="Delete"
+									variant="destructive"
+									onConfirm={async () => onDelete(key.id)}
 								/>
 							</TableCell>
 						</TableRow>
