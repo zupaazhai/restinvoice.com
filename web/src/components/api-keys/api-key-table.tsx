@@ -1,16 +1,3 @@
-import { Trash } from "lucide-react";
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-	AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
 import {
 	Table,
 	TableBody,
@@ -21,6 +8,7 @@ import {
 } from "@/components/ui/table";
 import { formatDateTime } from "@/lib/utils";
 import type { ApiKey } from "@/types/api-key.types";
+import { DeleteApiKeyAlert } from "./delete-api-key-alert";
 
 interface ApiKeyTableProps {
 	apiKeys: ApiKey[];
@@ -53,36 +41,11 @@ export function ApiKeyTable({ apiKeys, onDelete }: ApiKeyTableProps) {
 								{key.expiresAt ? formatDateTime(key.expiresAt) : "Never"}
 							</TableCell>
 							<TableCell className="text-right">
-								<AlertDialog>
-									<AlertDialogTrigger asChild>
-										<Button
-											variant="ghost"
-											size="icon"
-											className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
-										>
-											<Trash className="h-4 w-4" />
-											<span className="sr-only">Delete</span>
-										</Button>
-									</AlertDialogTrigger>
-									<AlertDialogContent>
-										<AlertDialogHeader>
-											<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-											<AlertDialogDescription>
-												This action cannot be undone. This will permanently delete the API key "
-												{key.name}" and revoke its access immediately.
-											</AlertDialogDescription>
-										</AlertDialogHeader>
-										<AlertDialogFooter>
-											<AlertDialogCancel>Cancel</AlertDialogCancel>
-											<AlertDialogAction
-												className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-												onClick={() => onDelete(key.id)}
-											>
-												Delete
-											</AlertDialogAction>
-										</AlertDialogFooter>
-									</AlertDialogContent>
-								</AlertDialog>
+								<DeleteApiKeyAlert
+									apiKeyId={key.id}
+									apiKeyName={key.name}
+									onDelete={async (id) => onDelete(id)}
+								/>
 							</TableCell>
 						</TableRow>
 					))}

@@ -45,9 +45,13 @@ export const apiKeysApi = {
 		};
 	},
 
-	create: (data: CreateApiKeyRequest, token?: string | null) =>
-		client.post<{ success: boolean; data: CreateApiKeyResponse }>("/v1/api-keys", data, { token }),
+	create: async (data: CreateApiKeyRequest, token?: string | null) => {
+		return client.post<{ success: boolean; data: CreateApiKeyResponse }>("/v1/api-keys", data, {
+			token,
+		});
+	},
 
-	revoke: (id: string, token?: string | null) =>
-		client.delete<{ success: boolean }>(`/v1/api-keys/${id}`, { token }),
+	revoke: async (id: string, token?: string | null) => {
+		return client.delete<{ success: boolean }>(`/v1/api-keys/${id}`, { token });
+	},
 };
