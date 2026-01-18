@@ -21,6 +21,10 @@ export const ApiKeySchema = z.object({
     example: 1704067200,
     description: "Creation timestamp (Unix)",
   }),
+  expired_at: z.number().nullable().optional().openapi({
+    example: 1735689600,
+    description: "Expiration timestamp (Unix), null if never expires",
+  }),
 });
 
 export const ApiKeyCreateResponseSchema = ApiKeySchema.extend({
@@ -35,6 +39,13 @@ export const CreateApiKeySchema = z.object({
     example: "My Production Key",
     description: "Friendly name for the API Key",
   }),
+  expires_in: z
+    .enum(["7d", "30d", "60d", "90d", "180d", "1y", "never"])
+    .optional()
+    .openapi({
+      example: "30d",
+      description: "Expiration duration",
+    }),
 });
 
 export const ApiKeyResponseSchema = z.object({

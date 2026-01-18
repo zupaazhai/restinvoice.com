@@ -5,8 +5,8 @@
  * @returns Object containing the full key and its components
  */
 export async function generateApiKey(env: string = "test") {
-  // Generate public reference (random 8 chars hex)
-  const refBytes = new Uint8Array(4);
+  // Generate public reference (random 32 chars hex / 16 bytes)
+  const refBytes = new Uint8Array(16);
   crypto.getRandomValues(refBytes);
   const ref = [...refBytes].map((b) => b.toString(16).padStart(2, "0")).join("");
 

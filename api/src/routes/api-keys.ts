@@ -120,20 +120,39 @@ apiKeys.openapi(createApiKeyRoute, async (c) => {
     return c.json({ message: "Unauthorized" }, 401);
   }
 
-  const { name } = c.req.valid("json");
+  const { name, expires_in } = c.req.valid("json");
 
   // Generate Key
   // TODO: Use env var or similar for environment prefix, defaulting to 'test' for now
   const { key, ref, secret } = await generateApiKey("test");
 
   const now = Math.floor(Date.now() / 1000);
+  let expired_at: number | null = null;
+  let expirationTtl: number | undefined = undefined;
+
+  if (expires_in && expires_in !== "never") {
+    const day = 24 * 60 * 60;
+    const durationMap: Record<string, number> = {
+      "7d": 7 * day,
+      "30d": 30 * day,
+      "60d": 60 * day,
+      "90d": 90 * day,
+      "180d": 180 * day,
+      "1y": 365 * day,
+    };
+    const duration = durationMap[expires_in];
+    if (duration) {
+      expired_at = now + duration;
+      expirationTtl = expired_at;
+    }
+  }
 
   try {
     // 1. Store in D1 (Metadata only, NO SECRET)
     await c.env.DB.prepare(
-      "INSERT INTO api_keys (id, ref, user_id, name, created_at) VALUES (?, ?, ?, ?, ?)"
+      "INSERT INTO api_keys (id, ref, user_id, name, created_at, expired_at) VALUES (?, ?, ?, ?, ?, ?)"
     )
-      .bind(ref, ref, auth.userId, name || null, now)
+      .bind(ref, ref, auth.userId, name || null, now, expired_at)
       .run();
 
     // 2. Store in KV (Secret)
@@ -142,7 +161,10 @@ apiKeys.openapi(createApiKeyRoute, async (c) => {
       JSON.stringify({
         secret,
         user_id: auth.userId,
-      })
+      }),
+      {
+        expiration: expirationTtl,
+      }
     );
 
     return c.json(
@@ -155,6 +177,7 @@ apiKeys.openapi(createApiKeyRoute, async (c) => {
           name: name || null,
           user_id: auth.userId,
           created_at: now,
+          expired_at,
         },
       },
       201
