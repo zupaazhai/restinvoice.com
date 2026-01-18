@@ -596,18 +596,53 @@ import { formatNumber } from "@/lib/utils";
 
 ### **Destructive Actions (Delete)**
 - **Requirement:** Any destructive action (deleting a key, removing a template) **MUST** be confirmed by the user.
-- **Component:** Use `AlertDialog` from Shadcn UI (`components/ui/alert-dialog.tsx`).
-- **Pattern:**
-  - **Trigger:** A button with `text-destructive` (usually a trash icon).
-  - **Title:** "Are you absolutely sure?"
-  - **Description:** Explain the consequences clearly (e.g., "This action cannot be undone...").
-  - **Action Button:** Use `AlertDialogAction` with specific destructive styling:
-    ```tsx
-    <AlertDialogAction
-      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-      onClick={handleDelete}
-    >
-      Delete
-    </AlertDialogAction>
-    ```
+- **Requirement:** Any destructive action (deleting a key, removing a template) **MUST** be confirmed by the user.
+- **Component:** Use `ConfirmDialog` component (`components/ui/confirm-dialog.tsx`).
+- **Features:**
+  - Handles loading state automatically (disables buttons, shows spinner).
+  - Prevents accidental closure during async operations (loading).
+  - Supports `destructive` and `default` variants.
+- **Props:**
+  - `trigger`: Element that opens the dialog (e.g., trash button).
+  - `title`: "Are you absolutely sure?".
+  - `description`: Explain consequences.
+  - `onConfirm`: Async function that returns a Promise.
+  - `variant`: `destructive` (red) or `default`.
+- **Example:**
+```tsx
+<ConfirmDialog
+  trigger={
+    <Button variant="ghost" size="icon" className="text-destructive">
+      <Trash className="h-4 w-4" />
+    </Button>
+  }
+  title="Are you absolutely sure?"
+  description="This action cannot be undone."
+  variant="destructive"
+  onConfirm={async () => await handleDelete(id)}
+/>
+```
 - **UX Rule:** Never perform a delete operation immediately on button click.
+
+### **Pagination**
+- **Component:** Use the `PaginationControl` component (`components/ui/pagination-control.tsx`) for consistent pagination UI.
+- **Design:** Based on shadcn/ui pagination pattern, handling:
+  - Page number lists with intelligent ellipses for large page counts.
+  - "Previous" and "Next" navigation buttons.
+  - Active page highlighting.
+  - Proper edge case handling (start/end of lists).
+- **Props:**
+  - `page`: Current page number (1-based index).
+  - `total`: Total number of pages.
+  - `onChange`: Callback function when a new page is selected.
+- **Example:**
+```tsx
+<PaginationControl
+  page={currentPage}
+  total={totalPages}
+  onChange={(page) => setCurrentPage(page)}
+/>
+```
+- **Behavior:**
+  - If `total` pages <= 1, the component renders nothing.
+  - Displays a window of pages around the current page, plus first and last pages.
