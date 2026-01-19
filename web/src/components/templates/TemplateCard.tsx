@@ -40,7 +40,7 @@ export function TemplateCard({ template, linkTo }: TemplateCardProps) {
 				</div>
 
 				{/* Template ID with Copy Button */}
-				<CopyInput value={template.id} className="w-full" />
+				<CopyInput value={String(template.id)} className="w-full" />
 			</CardFooter>
 		</Card>
 	);

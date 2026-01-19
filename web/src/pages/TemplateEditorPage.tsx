@@ -1,5 +1,8 @@
-import { Code, Eye, FileEdit, Save, Settings } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useAuth } from "@clerk/clerk-react";
+import { Code, Eye, FileEdit, Loader2, Save, Settings } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+
 import { TemplateCodeEditor } from "@/components/templates/TemplateCodeEditor";
 import { TemplatePreview } from "@/components/templates/TemplatePreview";
 import {
@@ -9,130 +12,110 @@ import {
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { templatesApi } from "@/lib/api/modules/templates";
+import {
+	transformVariablesToArray,
+	transformVariablesToRecord,
+} from "@/lib/transformers/template.transformer";
 import type { TemplateVariable } from "@/types/template.types";
 
-// Default Template Constants
-const DEFAULT_TEMPLATE = `
-<div style="font-family: sans-serif; color: #333; padding: 40px; background: #fff; max-width: 800px; margin: auto;">
-  <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 40px;">
-    <div>
-      <img src="{{logo_url}}" alt="Logo" style="height: 60px; margin-bottom: 10px; border-radius: 4px;" />
-      <h1 style="margin: 0; color: {{primary_color}}; font-size: 28px;">{{company_name}}</h1>
-    </div>
-    <div style="text-align: right;">
-      <h2 style="margin: 0; color: #666; font-size: 24px;">INVOICE</h2>
-      <p style="margin: 5px 0 0; color: #999;">#INV-2024-001</p>
-    </div>
-  </div>
-
-  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 40px;">
-    <div>
-      <h4 style="margin: 0 0 10px; color: {{primary_color}}; text-transform: uppercase; font-size: 12px; letter-spacing: 1px;">Bill To</h4>
-      <p style="margin: 0; font-weight: bold;">John Doe</p>
-      <p style="margin: 4px 0; color: #666;">123 Business Lane<br/>Silicon Valley, CA 94025</p>
-    </div>
-    <div style="text-align: right;">
-      <h4 style="margin: 0 0 10px; color: {{primary_color}}; text-transform: uppercase; font-size: 12px; letter-spacing: 1px;">Details</h4>
-      <p style="margin: 4px 0;"><strong>Date:</strong> Oct 24, 2024</p>
-      <p style="margin: 4px 0;"><strong>Due Date:</strong> Nov 07, 2024</p>
-    </div>
-  </div>
-
-  <table style="width: 100%; border-collapse: collapse; margin-bottom: 40px;">
-    <thead>
-      <tr style="border-bottom: 2px solid {{primary_color}};">
-        <th style="text-align: left; padding: 12px 0; font-size: 14px; color: #666;">Description</th>
-        <th style="text-align: center; padding: 12px 0; font-size: 14px; color: #666;">Quantity</th>
-        <th style="text-align: right; padding: 12px 0; font-size: 14px; color: #666;">Price</th>
-        <th style="text-align: right; padding: 12px 0; font-size: 14px; color: #666;">Total</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr style="border-bottom: 1px solid #eee;">
-        <td style="padding: 15px 0;">Premium Subscription Template</td>
-        <td style="padding: 15px 0; text-align: center;">1</td>
-        <td style="padding: 15px 0; text-align: right;">$49.00</td>
-        <td style="padding: 15px 0; text-align: right;">$49.00</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #eee;">
-        <td style="padding: 15px 0;">API Access Fee</td>
-        <td style="padding: 15px 0; text-align: center;">1</td>
-        <td style="padding: 15px 0; text-align: right;">$10.00</td>
-        <td style="padding: 15px 0; text-align: right;">$10.00</td>
-      </tr>
-    </tbody>
-  </table>
-
-  <div style="display: flex; justify-content: flex-end;">
-    <div style="width: 250px;">
-      <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-        <span style="color: #666;">Subtotal</span>
-        <span>$59.00</span>
-      </div>
-      <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-        <span style="color: #666;">Tax (0%)</span>
-        <span>$0.00</span>
-      </div>
-      <div style="display: flex; justify-content: space-between; padding-top: 10px; border-top: 2px solid #eee; font-weight: bold; font-size: 18px;">
-        <span>Total</span>
-        <span style="color: {{primary_color}};">$59.00</span>
-      </div>
-    </div>
-  </div>
-
-  <div style="margin-top: 60px; padding-top: 20px; border-top: 1px solid #eee; color: #999; font-size: 12px; text-align: center;">
-    {{footer_text}}
-  </div>
-</div>
-`;
-
-const INITIAL_VARIABLES: TemplateVariable[] = [
-	{
-		id: "primary_color",
-		label: "Primary Color",
-		type: "color",
-		value: "#4f46e5",
-	},
-	{
-		id: "company_name",
-		label: "Company Name",
-		type: "text",
-		value: "Nexus Systems Ltd.",
-	},
-	{
-		id: "logo_url",
-		label: "Logo URL",
-		type: "image",
-		value: "https://api.dicebear.com/7.x/identicon/svg?seed=Nexus",
-	},
-	{
-		id: "footer_text",
-		label: "Footer Note",
-		type: "text",
-		value: "Thank you for your business. Terms apply.",
-	},
-];
-
 export function TemplateEditorPage() {
+	const { id } = useParams();
+	const navigate = useNavigate();
+	const { getToken, isLoaded } = useAuth();
+
 	const [mode, setMode] = useState<"preview" | "code">("preview");
-	const [template, setTemplate] = useState(DEFAULT_TEMPLATE);
-	const [variables, setVariables] = useState<TemplateVariable[]>(INITIAL_VARIABLES);
+	const [templateName, setTemplateName] = useState("");
+	const [templateHtml, setTemplateHtml] = useState("");
+	const [variables, setVariables] = useState<TemplateVariable[]>([]);
 	const [isVariablesPanelOpen, setIsVariablesPanelOpen] = useState(false);
+	const [isLoading, setIsLoading] = useState(true);
+	const [isSaving, setIsSaving] = useState(false);
+
+	useEffect(() => {
+		const fetchTemplate = async () => {
+			if (!isLoaded || !id) return;
+			try {
+				setIsLoading(true);
+				const token = await getToken();
+				const template = await templatesApi.get(id, token);
+
+				setTemplateName(template.name);
+				setTemplateHtml(template.html_content);
+				setVariables(transformVariablesToArray(template.variables));
+			} catch (error) {
+				console.error("Failed to load template:", error);
+				// toast.error("Failed to load template");
+				navigate("/my-templates");
+			} finally {
+				setIsLoading(false);
+			}
+		};
+
+		fetchTemplate();
+	}, [isLoaded, id, getToken, navigate]);
 
 	// Inject variables into the template string
 	const renderedHtml = useMemo(() => {
-		let result = template;
+		let result = templateHtml;
 		for (const v of variables) {
+			// Basic replacement for now.
+			// In a real templating engine, escaping would be needed.
 			const regex = new RegExp(`{{${v.id}}}`, "g");
 			result = result.replace(regex, v.value);
 		}
 		return result;
-	}, [template, variables]);
+	}, [templateHtml, variables]);
 
 	const handleVariableChange = (id: string, value: string) => {
 		setVariables((prev) => prev.map((v) => (v.id === id ? { ...v, value } : v)));
 	};
+
+	const handleSave = async () => {
+		if (!id) return;
+		try {
+			setIsSaving(true);
+			const token = await getToken();
+			await templatesApi.update(
+				id,
+				{
+					html_content: templateHtml,
+					variables: transformVariablesToRecord(variables),
+				},
+				token
+			);
+			// toast.success("Template saved successfully");
+		} catch (error) {
+			console.error("Failed to save template:", error);
+			// toast.error("Failed to save template");
+		} finally {
+			setIsSaving(false);
+		}
+	};
+
+	if (isLoading) {
+		return (
+			<div className="flex h-[calc(100vh-theme(spacing.16)-theme(spacing.12))] flex-col gap-6">
+				<div className="flex flex-wrap items-center justify-between gap-4">
+					<div className="space-y-1">
+						<Skeleton className="h-8 w-64" />
+						<Skeleton className="h-4 w-48" />
+					</div>
+					<Skeleton className="h-10 w-32" />
+				</div>
+				<div className="flex min-h-0 flex-1 gap-6">
+					<div className="flex-1 overflow-hidden rounded-xl border bg-card">
+						<Skeleton className="h-full w-full" />
+					</div>
+					<div className="hidden w-80 lg:block">
+						<Skeleton className="h-full w-full rounded-xl" />
+					</div>
+				</div>
+			</div>
+		);
+	}
 
 	return (
 		<div className="flex h-[calc(100vh-theme(spacing.16)-theme(spacing.12))] flex-col gap-6">
@@ -140,7 +123,7 @@ export function TemplateEditorPage() {
 			<div className="flex flex-wrap items-center justify-between gap-4">
 				<PageHeader
 					icon={FileEdit}
-					title="Edit Template"
+					title={`Edit: ${templateName}`}
 					description="Customize your invoice template"
 				/>
 
@@ -183,9 +166,18 @@ export function TemplateEditorPage() {
 						)}
 
 						{/* Save Button - Icon only on mobile */}
-						<Button variant="default">
-							<Save className="h-4 w-4" />
-							<span className="hidden lg:inline">Save Template</span>
+						<Button variant="default" onClick={handleSave} disabled={isSaving}>
+							{isSaving ? (
+								<>
+									<Loader2 className="h-4 w-4 animate-spin" />
+									<span className="ml-2 hidden lg:inline">Saving...</span>
+								</>
+							) : (
+								<>
+									<Save className="h-4 w-4" />
+									<span className="ml-2 hidden lg:inline">Save Template</span>
+								</>
+							)}
 						</Button>
 					</div>
 				</div>
@@ -210,7 +202,7 @@ export function TemplateEditorPage() {
 				) : (
 					/* Code Editor */
 					<div className="flex-1 overflow-hidden">
-						<TemplateCodeEditor value={template} onChange={setTemplate} />
+						<TemplateCodeEditor value={templateHtml} onChange={setTemplateHtml} />
 					</div>
 				)}
 			</div>

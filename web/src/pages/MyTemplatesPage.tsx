@@ -1,6 +1,7 @@
 import { useAuth } from "@clerk/clerk-react";
 import { FolderHeart, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
+import { CreateTemplateDialog } from "@/components/templates/CreateTemplateDialog";
 import { TemplateList } from "@/components/templates/TemplateList";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
@@ -60,12 +61,7 @@ export function MyTemplatesPage() {
 				icon={FolderHeart}
 				title="My Templates"
 				description="Your customized templates for invoices and receipts"
-				action={
-					<Button variant="default" className="w-full sm:w-auto">
-						<Plus className="h-4 w-4" />
-						Create Template
-					</Button>
-				}
+				action={<CreateTemplateDialog onTemplateCreated={() => window.location.reload()} />}
 			/>
 			<TemplateList
 				templates={templates}
