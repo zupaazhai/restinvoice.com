@@ -23,6 +23,7 @@ const listTemplatesRoute = createRoute({
   request: {
     query: PaginationQuerySchema,
   },
+  tags: ["Templates"],
   responses: {
     200: {
       content: {
@@ -52,6 +53,7 @@ const getTemplateRoute = createRoute({
       }),
     }),
   },
+  tags: ["Templates"],
   responses: {
     200: {
       content: {
@@ -85,6 +87,7 @@ const createTemplateRoute = createRoute({
       },
     },
   },
+  tags: ["Templates"],
   responses: {
     201: {
       content: {
@@ -127,6 +130,7 @@ const updateTemplateRoute = createRoute({
       },
     },
   },
+  tags: ["Templates"],
   responses: {
     200: {
       content: {
@@ -165,6 +169,7 @@ const deleteTemplateRoute = createRoute({
       }),
     }),
   },
+  tags: ["Templates"],
   responses: {
     200: {
       content: {
@@ -256,22 +261,14 @@ templates.openapi(createTemplateRoute, async (c) => {
     const variablesJson = variables ? JSON.stringify(variables) : null;
 
     const result = await c.env.DB.prepare(
-      "INSERT INTO templates (name, description, user_id, html_content, variables, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "INSERT INTO templates (name, description, user_id, html_content, variables, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)"
     )
-      .bind(
-        name,
-        description || null,
-        auth.userId,
-        html_content,
-        variablesJson,
-        now,
-        now,
-      )
+      .bind(name, description || null, auth.userId, html_content, variablesJson, now, now)
       .run();
 
     // Fetch the created template
     const created = await c.env.DB.prepare(
-      "SELECT id, name, description, user_id, html_content, variables, created_at, updated_at FROM templates WHERE id = ?",
+      "SELECT id, name, description, user_id, html_content, variables, created_at, updated_at FROM templates WHERE id = ?"
     )
       .bind(result.meta.last_row_id)
       .first<Template>();
@@ -283,9 +280,10 @@ templates.openapi(createTemplateRoute, async (c) => {
       },
       201
     );
-  } catch (e: any) {
+  } catch (e: unknown) {
     console.error(e);
-    return c.json({ message: `Failed to create template: ${e.message || e}` }, 500);
+    const message = e instanceof Error ? e.message : "Unknown error";
+    return c.json({ message: `Failed to create template: ${message}` }, 500);
   }
 });
 
@@ -344,7 +342,7 @@ templates.openapi(updateTemplateRoute, async (c) => {
 
     // Fetch updated template
     const updated = await c.env.DB.prepare(
-      "SELECT id, name, description, user_id, html_content, variables, created_at, updated_at FROM templates WHERE id = ?",
+      "SELECT id, name, description, user_id, html_content, variables, created_at, updated_at FROM templates WHERE id = ?"
     )
       .bind(id)
       .first<Template>();

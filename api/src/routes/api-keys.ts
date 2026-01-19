@@ -20,6 +20,7 @@ const listApiKeysRoute = createRoute({
   request: {
     query: PaginationQuerySchema,
   },
+  tags: ["API Keys"],
   responses: {
     200: {
       content: {
@@ -47,6 +48,7 @@ const createApiKeyRoute = createRoute({
       },
     },
   },
+  tags: ["API Keys"],
   responses: {
     201: {
       content: {
@@ -71,6 +73,7 @@ const createApiKeyRoute = createRoute({
 const revokeApiKeyRoute = createRoute({
   method: "delete",
   path: "/:ref",
+  tags: ["API Keys"],
   responses: {
     200: {
       content: {
