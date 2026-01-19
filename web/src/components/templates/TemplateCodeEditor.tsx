@@ -1,5 +1,6 @@
-import { Editor } from "@monaco-editor/react";
+import { Editor, type Monaco } from "@monaco-editor/react";
 import { Loader2 } from "lucide-react";
+import { Dracula } from "@/lib/monaco-themes";
 
 interface TemplateCodeEditorProps {
 	value: string;
@@ -7,6 +8,10 @@ interface TemplateCodeEditorProps {
 }
 
 export function TemplateCodeEditor({ value, onChange }: TemplateCodeEditorProps) {
+	const handleEditorWillMount = (monaco: Monaco) => {
+		monaco.editor.defineTheme("dracula", Dracula);
+	};
+
 	return (
 		<div className="flex h-full flex-col gap-2 bg-muted p-4">
 			<div className="flex items-center justify-between px-2 text-xs text-muted-foreground">
@@ -17,8 +22,9 @@ export function TemplateCodeEditor({ value, onChange }: TemplateCodeEditorProps)
 				<Editor
 					height="100%"
 					defaultLanguage="html"
-					theme="vs-dark"
+					theme="dracula"
 					value={value}
+					beforeMount={handleEditorWillMount}
 					onChange={(value) => onChange(value || "")}
 					loading={
 						<div className="flex h-full w-full items-center justify-center bg-card text-muted-foreground">
