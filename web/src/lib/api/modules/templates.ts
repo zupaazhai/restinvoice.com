@@ -17,7 +17,7 @@ export const templatesApi = {
 		}
 		return [];
 	},
-	listSystem: () => client.get<Template[]>("/v1/templates/system"),
+	listSystem: (token?: string | null) => client.get<Template[]>("/v1/templates/system", { token }),
 	get: async (id: string, token?: string | null) => {
 		const response = await client.get<{ success: boolean; data: Template }>(`/v1/templates/${id}`, {
 			token,

@@ -8,6 +8,7 @@ import {
   UpdateTemplateSchema,
 } from "../models/template";
 import { db } from "../utils/db";
+import { DEFAULT_TEMPLATE_HTML, DEFAULT_TEMPLATE_VARIABLES } from "../utils/defaults";
 
 const templates = new OpenAPIHono<{
   Bindings: {
@@ -32,6 +33,25 @@ const listTemplatesRoute = createRoute({
         },
       },
       description: "List all templates for the current user",
+    },
+    401: {
+      description: "Unauthorized",
+    },
+  },
+});
+
+const listSystemTemplatesRoute = createRoute({
+  method: "get",
+  path: "/system",
+  tags: ["Templates"],
+  responses: {
+    200: {
+      content: {
+        "application/json": {
+          schema: z.array(TemplateSchema),
+        },
+      },
+      description: "List system templates",
     },
     401: {
       description: "Unauthorized",
@@ -220,6 +240,27 @@ templates.openapi(listTemplatesRoute, async (c) => {
     data: results.data,
     meta: results.meta,
   });
+});
+
+templates.openapi(listSystemTemplatesRoute, async (c) => {
+  const auth = getAuth(c);
+  if (!auth?.userId) {
+    return c.json({ message: "Unauthorized" }, 401);
+  }
+
+
+  const systemTemplate: Template = {
+    id: "00000000-0000-0000-0000-000000000001",
+    name: "Standard Invoice",
+    description: "A professional and clean invoice template suitable for most businesses.",
+    user_id: "system",
+    html_content: DEFAULT_TEMPLATE_HTML,
+    variables: DEFAULT_TEMPLATE_VARIABLES,
+    created_at: 1705680000, // Fixed timestamp
+    updated_at: 1705680000,
+  };
+
+  return c.json([systemTemplate]);
 });
 
 templates.openapi(getTemplateRoute, async (c) => {
