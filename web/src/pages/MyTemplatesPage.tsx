@@ -1,6 +1,6 @@
 import { useAuth } from "@clerk/clerk-react";
 import { FolderHeart, Plus } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { CreateTemplateDialog } from "@/components/templates/CreateTemplateDialog";
 import { TemplateList } from "@/components/templates/TemplateList";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,7 @@ export function MyTemplatesPage() {
 
 	const { getToken, isLoaded } = useAuth();
 
-	const fetchTemplates = async () => {
+	const fetchTemplates = useCallback(async () => {
 		if (!isLoaded) return;
 		try {
 			setIsLoading(true);
@@ -28,11 +28,11 @@ export function MyTemplatesPage() {
 		} finally {
 			setIsLoading(false);
 		}
-	};
+	}, [isLoaded, getToken]);
 
 	useEffect(() => {
 		fetchTemplates();
-	}, [isLoaded, getToken]);
+	}, [fetchTemplates]);
 
 	if (error) {
 		return (

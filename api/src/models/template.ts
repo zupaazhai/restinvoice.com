@@ -2,9 +2,9 @@ import { z } from "@hono/zod-openapi";
 
 // Database schema (full template object)
 export const TemplateSchema = z.object({
-  id: z.number().openapi({
-    example: 1,
-    description: "Template ID",
+  id: z.string().uuid().openapi({
+    example: "123e4567-e89b-12d3-a456-426614174000",
+    description: "Template ID (UUID)",
   }),
   name: z.string().max(150).openapi({
     example: "Modern Invoice",

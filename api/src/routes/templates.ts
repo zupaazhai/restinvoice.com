@@ -44,13 +44,16 @@ const getTemplateRoute = createRoute({
   path: "/{id}",
   request: {
     params: z.object({
-      id: z.coerce.number().openapi({
-        param: {
-          name: "id",
-          in: "path",
-        },
-        example: 1,
-      }),
+      id: z
+        .string()
+        .uuid()
+        .openapi({
+          param: {
+            name: "id",
+            in: "path",
+          },
+          example: "123e4567-e89b-12d3-a456-426614174000",
+        }),
     }),
   },
   tags: ["Templates"],
@@ -114,13 +117,16 @@ const updateTemplateRoute = createRoute({
   path: "/{id}",
   request: {
     params: z.object({
-      id: z.coerce.number().openapi({
-        param: {
-          name: "id",
-          in: "path",
-        },
-        example: 1,
-      }),
+      id: z
+        .string()
+        .uuid()
+        .openapi({
+          param: {
+            name: "id",
+            in: "path",
+          },
+          example: "123e4567-e89b-12d3-a456-426614174000",
+        }),
     }),
     body: {
       content: {
@@ -160,13 +166,16 @@ const deleteTemplateRoute = createRoute({
   path: "/{id}",
   request: {
     params: z.object({
-      id: z.coerce.number().openapi({
-        param: {
-          name: "id",
-          in: "path",
-        },
-        example: 1,
-      }),
+      id: z
+        .string()
+        .uuid()
+        .openapi({
+          param: {
+            name: "id",
+            in: "path",
+          },
+          example: "123e4567-e89b-12d3-a456-426614174000",
+        }),
     }),
   },
   tags: ["Templates"],
@@ -258,19 +267,20 @@ templates.openapi(createTemplateRoute, async (c) => {
   const now = Math.floor(Date.now() / 1000);
 
   try {
+    const id = crypto.randomUUID();
     const variablesJson = variables ? JSON.stringify(variables) : null;
 
-    const result = await c.env.DB.prepare(
-      "INSERT INTO templates (name, description, user_id, html_content, variables, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)"
+    await c.env.DB.prepare(
+      "INSERT INTO templates (id, name, description, user_id, html_content, variables, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
     )
-      .bind(name, description || null, auth.userId, html_content, variablesJson, now, now)
+      .bind(id, name, description || null, auth.userId, html_content, variablesJson, now, now)
       .run();
 
     // Fetch the created template
     const created = await c.env.DB.prepare(
       "SELECT id, name, description, user_id, html_content, variables, created_at, updated_at FROM templates WHERE id = ?"
     )
-      .bind(result.meta.last_row_id)
+      .bind(id)
       .first<Template>();
 
     return c.json(
@@ -300,7 +310,7 @@ templates.openapi(updateTemplateRoute, async (c) => {
     // Check ownership
     const existing = await c.env.DB.prepare("SELECT id FROM templates WHERE id = ? AND user_id = ?")
       .bind(id, auth.userId)
-      .first<{ id: number }>();
+      .first<{ id: string }>();
 
     if (!existing) {
       return c.json({ message: "Template not found" }, 404);

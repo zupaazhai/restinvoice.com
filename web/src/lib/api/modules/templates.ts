@@ -18,7 +18,7 @@ export const templatesApi = {
 		return [];
 	},
 	listSystem: () => client.get<Template[]>("/v1/templates/system"),
-	get: async (id: number | string, token?: string | null) => {
+	get: async (id: string, token?: string | null) => {
 		const response = await client.get<{ success: boolean; data: Template }>(`/v1/templates/${id}`, {
 			token,
 		});
@@ -31,12 +31,12 @@ export const templatesApi = {
 	create: async (data: CreateTemplateRequest, token?: string | null) => {
 		return client.post<{ success: boolean; data: Template }>("/v1/templates", data, { token });
 	},
-	update: async (id: number | string, data: UpdateTemplateRequest, token?: string | null) => {
+	update: async (id: string, data: UpdateTemplateRequest, token?: string | null) => {
 		return client.patch<{ success: boolean; data: Template }>(`/v1/templates/${id}`, data, {
 			token,
 		});
 	},
-	delete: async (id: number | string, token?: string | null) => {
+	delete: async (id: string, token?: string | null) => {
 		return client.delete<{ success: boolean }>(`/v1/templates/${id}`, { token });
 	},
 };

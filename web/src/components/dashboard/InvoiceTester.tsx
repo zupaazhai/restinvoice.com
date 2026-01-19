@@ -88,12 +88,12 @@ export function InvoiceTester() {
 				</div>
 
 				<div className="mt-auto">
-				<div className="mt-auto">
-					<Button className="w-full" onClick={handleTest} isLoading={loading}>
-						<Play className="h-4 w-4" />
-						Generate
-					</Button>
-				</div>
+					<div className="mt-auto">
+						<Button className="w-full" onClick={handleTest} isLoading={loading}>
+							<Play className="h-4 w-4" />
+							Generate
+						</Button>
+					</div>
 				</div>
 			</CardContent>
 		</Card>
