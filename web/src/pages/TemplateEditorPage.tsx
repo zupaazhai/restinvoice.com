@@ -1,5 +1,5 @@
 import { useAuth } from "@clerk/clerk-react";
-import { Code, Eye, FileEdit, Loader2, Save, Settings } from "lucide-react";
+import { Code, Eye, FileEdit, Save, Settings } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -166,18 +166,9 @@ export function TemplateEditorPage() {
 						)}
 
 						{/* Save Button - Icon only on mobile */}
-						<Button variant="default" onClick={handleSave} disabled={isSaving}>
-							{isSaving ? (
-								<>
-									<Loader2 className="h-4 w-4 animate-spin" />
-									<span className="ml-2 hidden lg:inline">Saving...</span>
-								</>
-							) : (
-								<>
-									<Save className="h-4 w-4" />
-									<span className="ml-2 hidden lg:inline">Save Template</span>
-								</>
-							)}
+						<Button variant="default" onClick={handleSave} isLoading={isSaving}>
+							<Save className="h-4 w-4" />
+							<span className="ml-2 hidden lg:inline">Save Template</span>
 						</Button>
 					</div>
 				</div>

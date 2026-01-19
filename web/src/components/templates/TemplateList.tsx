@@ -2,6 +2,7 @@ import { Search } from "lucide-react";
 import { useState } from "react";
 import { TemplateCard } from "@/components/templates/TemplateCard";
 import { TemplateSkeleton } from "@/components/templates/TemplateSkeleton";
+import { Button } from "@/components/ui/button";
 import {
 	Empty,
 	EmptyContent,
@@ -121,13 +122,13 @@ export function TemplateList({
 						<EmptyDescription>{emptyStateDescription}</EmptyDescription>
 					</EmptyHeader>
 					<EmptyContent>
-						<button
-							type="button"
+						<Button
+							variant="link"
 							onClick={handleClearFilters}
-							className="text-sm text-primary hover:underline"
+							className="text-primary hover:underline p-0 h-auto font-normal"
 						>
 							Clear filters
-						</button>
+						</Button>
 					</EmptyContent>
 				</Empty>
 			)}

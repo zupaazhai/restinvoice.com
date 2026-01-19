@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AlertTriangle, Check, Key, Loader2 } from "lucide-react";
+import { AlertTriangle, Check, Key } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -202,15 +202,9 @@ export function CreateApiKeyDialog({ children, onCreate }: CreateApiKeyDialogPro
 									>
 										Cancel
 									</Button>
-									<Button type="submit" disabled={step === "loading"}>
-										{step === "loading" ? (
-											<>
-												<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-												Generating...
-											</>
-										) : (
-											"Generate Key"
-										)}
+									<Button type="submit" isLoading={step === "loading"}>
+										<Key className="h-4 w-4" />
+										Generate Key
 									</Button>
 								</DialogFooter>
 							</form>

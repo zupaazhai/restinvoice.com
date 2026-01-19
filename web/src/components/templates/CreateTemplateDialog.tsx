@@ -1,6 +1,6 @@
 import { useAuth } from "@clerk/clerk-react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
@@ -164,15 +164,9 @@ export function CreateTemplateDialog({ onTemplateCreated }: CreateTemplateDialog
 							>
 								Cancel
 							</Button>
-							<Button type="submit" disabled={form.formState.isSubmitting}>
-								{form.formState.isSubmitting ? (
-									<>
-										<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-										Creating...
-									</>
-								) : (
-									"Create Template"
-								)}
+							<Button type="submit" isLoading={form.formState.isSubmitting}>
+								<Plus className="h-4 w-4" />
+								Create Template
 							</Button>
 						</DialogFooter>
 					</form>

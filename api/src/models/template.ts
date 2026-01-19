@@ -32,7 +32,7 @@ export const TemplateSchema = z.object({
         }
       }
       return val;
-    }, z.record(z.any()).nullable().optional())
+    }, z.record(z.string(), z.any()).nullable().optional())
     .openapi({
       example: { invoice_number: "INV-001", total: 100 },
       description: "Template variables (JSON)",
@@ -62,7 +62,7 @@ export const CreateTemplateSchema = z.object({
     description: "HTML template content (required)",
   }),
   variables: z
-    .record(z.any())
+    .record(z.string(), z.any())
     .optional()
     .openapi({
       example: { invoice_number: "INV-001" },
@@ -85,7 +85,7 @@ export const UpdateTemplateSchema = z.object({
     description: "HTML template content",
   }),
   variables: z
-    .record(z.any())
+    .record(z.string(), z.any())
     .optional()
     .openapi({
       example: { invoice_number: "INV-002" },

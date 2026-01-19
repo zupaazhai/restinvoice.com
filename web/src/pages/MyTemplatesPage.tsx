@@ -15,22 +15,22 @@ export function MyTemplatesPage() {
 
 	const { getToken, isLoaded } = useAuth();
 
-	useEffect(() => {
-		const fetchTemplates = async () => {
-			if (!isLoaded) return;
-			try {
-				setIsLoading(true);
-				const token = await getToken();
-				const data = await templatesApi.list(token);
-				setTemplates(data);
-			} catch (err) {
-				console.error("Failed to fetch user templates:", err);
-				setError("Failed to load your templates. Please try again later.");
-			} finally {
-				setIsLoading(false);
-			}
-		};
+	const fetchTemplates = async () => {
+		if (!isLoaded) return;
+		try {
+			setIsLoading(true);
+			const token = await getToken();
+			const data = await templatesApi.list(token);
+			setTemplates(data);
+		} catch (err) {
+			console.error("Failed to fetch user templates:", err);
+			setError("Failed to load your templates. Please try again later.");
+		} finally {
+			setIsLoading(false);
+		}
+	};
 
+	useEffect(() => {
 		fetchTemplates();
 	}, [isLoaded, getToken]);
 
@@ -61,7 +61,7 @@ export function MyTemplatesPage() {
 				icon={FolderHeart}
 				title="My Templates"
 				description="Your customized templates for invoices and receipts"
-				action={<CreateTemplateDialog onTemplateCreated={() => window.location.reload()} />}
+				action={<CreateTemplateDialog onTemplateCreated={fetchTemplates} />}
 			/>
 			<TemplateList
 				templates={templates}
