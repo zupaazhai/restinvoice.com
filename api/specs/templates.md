@@ -25,6 +25,7 @@ The Templates module provides CRUD endpoints for managing user-defined invoice a
 | `description` | string \| null | No | Optional description (max 300 chars) |
 | `user_id` | string | Yes | Owner User ID (Clerk) |
 | `html_content` | string | Yes | HTML content of the template |
+| `variables` | object \| null | No | JSON object containing template variable definitions |
 | `created_at` | integer | Yes | Creation timestamp (Unix) |
 | `updated_at` | integer | Yes | Update timestamp (Unix) |
 
@@ -54,7 +55,11 @@ Lists all templates owned by the authenticated user with pagination.
       "name": "Modern Invoice",
       "description": "Clean design",
       "user_id": "user_...",
-      "html_content": "...",
+      "html_content": "<html>...</html>",
+      "variables": {
+        "invoice_number": "INV-001",
+        "due_date": "2024-01-01"
+      },
       "created_at": 1704067200,
       "updated_at": 1704067200
     }
@@ -86,6 +91,7 @@ Retrieves a single template by ID.
   "data": {
     "id": 1,
     "name": "Modern Invoice",
+    "variables": { ... },
     "...": "..."
   }
 }
@@ -106,6 +112,7 @@ Creates a new template.
 | `name` | string | Yes | Template name (1-150 chars) |
 | `html_content` | string | Yes | HTML content |
 | `description` | string | No | Optional description (max 300 chars) |
+| `variables` | object | No | JSON object defining variables |
 
 **Response:** `201 Created`
 ```json
@@ -114,6 +121,7 @@ Creates a new template.
   "data": {
     "id": 2,
     "name": "New Template",
+    "variables": { "foo": "bar" },
     "...": "..."
   }
 }
@@ -131,6 +139,7 @@ Updates an existing template.
 | `name` | string | Template name |
 | `description` | string | Description |
 | `html_content` | string | HTML content |
+| `variables` | object | Variables JSON |
 
 **Response:** `200 OK` (Returns updated object)
 
@@ -158,6 +167,7 @@ CREATE TABLE templates (
   description TEXT CHECK(description IS NULL OR length(description) <= 300),
   user_id TEXT NOT NULL,
   html_content TEXT NOT NULL,
+  variables TEXT, -- Stored as JSON string
   created_at INTEGER DEFAULT (unixepoch()),
   updated_at INTEGER DEFAULT (unixepoch())
 );

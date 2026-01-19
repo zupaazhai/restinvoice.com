@@ -22,6 +22,22 @@ export const TemplateSchema = z.object({
     example: "<html><body>Invoice #{invoice_number}</body></html>",
     description: "HTML template content",
   }),
+  variables: z.preprocess(
+    (val) => {
+      if (typeof val === "string") {
+        try {
+          return JSON.parse(val);
+        } catch {
+          return val;
+        }
+      }
+      return val;
+    },
+    z.record(z.any()).nullable().optional(),
+  ).openapi({
+    example: { invoice_number: "INV-001", total: 100 },
+    description: "Template variables (JSON)",
+  }),
   created_at: z.number().openapi({
     example: 1704067200,
     description: "Creation timestamp (Unix)",
@@ -46,6 +62,10 @@ export const CreateTemplateSchema = z.object({
     example: "<html><body><h1>Invoice</h1></body></html>",
     description: "HTML template content (required)",
   }),
+  variables: z.record(z.any()).optional().openapi({
+    example: { invoice_number: "INV-001" },
+    description: "Template variables (JSON object)",
+  }),
 });
 
 // Update template request schema
@@ -61,6 +81,10 @@ export const UpdateTemplateSchema = z.object({
   html_content: z.string().min(1).optional().openapi({
     example: "<html><body><h1>Updated Invoice</h1></body></html>",
     description: "HTML template content",
+  }),
+  variables: z.record(z.any()).optional().openapi({
+    example: { invoice_number: "INV-002" },
+    description: "Template variables (JSON object)",
   }),
 });
 

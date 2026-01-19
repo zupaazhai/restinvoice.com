@@ -220,7 +220,16 @@ templates.openapi(getTemplateRoute, async (c) => {
     .table("templates")
     .where("id", id)
     .where("user_id", auth.userId)
-    .select(["id", "name", "description", "user_id", "html_content", "created_at", "updated_at"])
+    .select([
+      "id",
+      "name",
+      "description",
+      "user_id",
+      "html_content",
+      "variables",
+      "created_at",
+      "updated_at",
+    ])
     .get();
 
   if (!template || template.length === 0) {
@@ -239,20 +248,30 @@ templates.openapi(createTemplateRoute, async (c) => {
     return c.json({ message: "Unauthorized" }, 401);
   }
 
-  const { name, description, html_content } = c.req.valid("json");
+  const { name, description, html_content, variables } = c.req.valid("json");
 
   const now = Math.floor(Date.now() / 1000);
 
   try {
+    const variablesJson = variables ? JSON.stringify(variables) : null;
+
     const result = await c.env.DB.prepare(
-      "INSERT INTO templates (name, description, user_id, html_content, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)"
+      "INSERT INTO templates (name, description, user_id, html_content, variables, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
     )
-      .bind(name, description || null, auth.userId, html_content, now, now)
+      .bind(
+        name,
+        description || null,
+        auth.userId,
+        html_content,
+        variablesJson,
+        now,
+        now,
+      )
       .run();
 
     // Fetch the created template
     const created = await c.env.DB.prepare(
-      "SELECT id, name, description, user_id, html_content, created_at, updated_at FROM templates WHERE id = ?"
+      "SELECT id, name, description, user_id, html_content, variables, created_at, updated_at FROM templates WHERE id = ?",
     )
       .bind(result.meta.last_row_id)
       .first<Template>();
@@ -264,9 +283,9 @@ templates.openapi(createTemplateRoute, async (c) => {
       },
       201
     );
-  } catch (e) {
+  } catch (e: any) {
     console.error(e);
-    return c.json({ message: "Failed to create template" }, 500);
+    return c.json({ message: `Failed to create template: ${e.message || e}` }, 500);
   }
 });
 
@@ -305,6 +324,10 @@ templates.openapi(updateTemplateRoute, async (c) => {
       updateFields.push("html_content = ?");
       values.push(updates.html_content);
     }
+    if (updates.variables !== undefined) {
+      updateFields.push("variables = ?");
+      values.push(updates.variables ? JSON.stringify(updates.variables) : null);
+    }
 
     // Always update updated_at
     updateFields.push("updated_at = ?");
@@ -321,7 +344,7 @@ templates.openapi(updateTemplateRoute, async (c) => {
 
     // Fetch updated template
     const updated = await c.env.DB.prepare(
-      "SELECT id, name, description, user_id, html_content, created_at, updated_at FROM templates WHERE id = ?"
+      "SELECT id, name, description, user_id, html_content, variables, created_at, updated_at FROM templates WHERE id = ?",
     )
       .bind(id)
       .first<Template>();
