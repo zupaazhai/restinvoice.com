@@ -1,3 +1,6 @@
+import { Editor } from "@monaco-editor/react";
+import { Loader2 } from "lucide-react";
+
 interface TemplateCodeEditorProps {
 	value: string;
 	onChange: (value: string) => void;
@@ -10,13 +13,31 @@ export function TemplateCodeEditor({ value, onChange }: TemplateCodeEditorProps)
 				<span className="font-medium uppercase tracking-wider">Template.html</span>
 				<span>Language: HTML</span>
 			</div>
-			<textarea
-				value={value}
-				onChange={(e) => onChange(e.target.value)}
-				spellCheck={false}
-				className="h-full w-full flex-1 resize-none rounded-xl border border-border bg-card p-4 font-mono text-sm leading-relaxed text-foreground outline-none focus:ring-2 focus:ring-ring"
-				placeholder="Enter your HTML template here..."
-			/>
+			<div className="h-full w-full flex-1 overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+				<Editor
+					height="100%"
+					defaultLanguage="html"
+					theme="vs-dark"
+					value={value}
+					onChange={(value) => onChange(value || "")}
+					loading={
+						<div className="flex h-full w-full items-center justify-center bg-card text-muted-foreground">
+							<Loader2 className="animate-spin" />
+						</div>
+					}
+					options={{
+						minimap: { enabled: true },
+						fontSize: 14,
+						lineNumbers: "on",
+						roundedSelection: false,
+						scrollBeyondLastLine: false,
+						readOnly: false,
+						automaticLayout: true,
+						padding: { top: 16, bottom: 16 },
+						fontFamily: "monospace",
+					}}
+				/>
+			</div>
 		</div>
 	);
 }
