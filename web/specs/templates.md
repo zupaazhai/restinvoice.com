@@ -86,7 +86,7 @@ The application uses a centralized API client structure.
 
 | Function | HTTP Method | Endpoint | Auth | Description |
 | :--- | :--- | :--- | :--- | :--- |
-| `templatesApi.listSystem()` | `GET` | `/v1/templates/system` | Public | Fetches default system templates. |
+| `templatesApi.listSystem()` | `GET` | `/v1/templates/system` | **Required** | Fetches default system templates. |
 | `templatesApi.list(token)` | `GET` | `/v1/templates` | **Required** | Fetches the authenticated user's templates. |
 
 ### Call Flow

@@ -178,7 +178,7 @@ GET    /v1/templates/:id        → Get template details
 POST   /v1/templates            → Create custom template
 PUT    /v1/templates/:id        → Update template
 DELETE /v1/templates/:id        → Delete template
-GET    /v1/templates/system     → List system templates
+GET    /v1/templates/system     → List system templates (Authenticated)
 ```
 
 #### Invoice Generation (Public API)

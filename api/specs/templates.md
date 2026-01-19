@@ -198,3 +198,26 @@ CREATE INDEX idx_templates_created_at ON templates(created_at);
 | /v1/templates | POST | ✅ Implemented |
 | /v1/templates/:id | PATCH | ✅ Implemented |
 | /v1/templates/:id | DELETE | ✅ Implemented |
+| /v1/templates/system | GET | ✅ Implemented |
+
+### GET /v1/templates/system
+
+Lists all available system templates.
+
+**Authentication:** Required (Clerk JWT)
+
+**Response:** `200 OK`
+```json
+[
+  {
+    "id": "00000000-0000-0000-0000-000000000001",
+    "name": "Standard Invoice",
+    "description": "A professional and clean invoice template suitable for most businesses.",
+    "user_id": "system",
+    "html_content": "<!DOCTYPE html>...",
+    "variables": { ... },
+    "created_at": 1705680000,
+    "updated_at": 1705680000
+  }
+]
+```
