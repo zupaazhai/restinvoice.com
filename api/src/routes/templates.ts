@@ -1,103 +1,36 @@
 import { getAuth } from "@hono/clerk-auth";
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
-import { type Template, TemplateSchema } from "../models/template";
+import { PaginatedResponseSchema, PaginationQuerySchema } from "../models/pagination";
+import {
+  CreateTemplateSchema,
+  type Template,
+  TemplateSchema,
+  UpdateTemplateSchema,
+} from "../models/template";
+import { db } from "../utils/db";
 
-const templates = new OpenAPIHono();
+const templates = new OpenAPIHono<{
+  Bindings: {
+    DB: D1Database;
+  };
+}>();
 
-// Mock Data
-const SYSTEM_TEMPLATES: Template[] = [
-  {
-    id: "system-modern-01",
-    name: "Modern Invoice",
-    description: "Clean, minimal design perfect for tech companies and startups",
-    type: "invoice",
-    isSystem: true,
-  },
-  {
-    id: "system-corporate-01",
-    name: "Corporate Invoice",
-    description: "Formal business style with professional layout",
-    type: "invoice",
-    isSystem: true,
-  },
-  {
-    id: "system-creative-01",
-    name: "Creative Invoice",
-    description: "Designer-friendly layout with vibrant accents",
-    type: "invoice",
-    isSystem: true,
-  },
-  {
-    id: "system-detailed-01",
-    name: "Detailed Invoice",
-    description: "Itemized breakdown with comprehensive tax calculations",
-    type: "invoice",
-    isSystem: true,
-  },
-  {
-    id: "system-receipt-simple",
-    name: "Simple Receipt",
-    description: "Basic receipt for quick transactions",
-    type: "receipt",
-    isSystem: true,
-  },
-  {
-    id: "system-receipt-detailed",
-    name: "Detailed Receipt",
-    description: "Full transaction details with customer information",
-    type: "receipt",
-    isSystem: true,
-  },
-];
+// --- Route Definitions ---
 
-const USER_TEMPLATES: Template[] = [
-  {
-    id: "user-custom-01",
-    name: "My Custom Invoice",
-    description: "Personalized invoice template with my brand colors",
-    type: "invoice",
-    isSystem: false,
-  },
-  {
-    id: "user-custom-02",
-    name: "Project Receipt",
-    description: "Receipt template for project-based work",
-    type: "receipt",
-    isSystem: false,
-  },
-];
-
-// Routes
-const getSystemTemplatesRoute = createRoute({
-  method: "get",
-  path: "/system",
-  responses: {
-    200: {
-      content: {
-        "application/json": {
-          schema: z.array(TemplateSchema),
-        },
-      },
-      description: "Retrieve a list of system templates",
-    },
-  },
-});
-
-templates.openapi(getSystemTemplatesRoute, (c) => {
-  return c.json(SYSTEM_TEMPLATES);
-});
-
-const getUserTemplatesRoute = createRoute({
+const listTemplatesRoute = createRoute({
   method: "get",
   path: "/",
+  request: {
+    query: PaginationQuerySchema,
+  },
   responses: {
     200: {
       content: {
         "application/json": {
-          schema: z.array(TemplateSchema),
+          schema: PaginatedResponseSchema(TemplateSchema),
         },
       },
-      description: "Retrieve a list of user templates",
+      description: "List all templates for the current user",
     },
     401: {
       description: "Unauthorized",
@@ -105,14 +38,325 @@ const getUserTemplatesRoute = createRoute({
   },
 });
 
-templates.openapi(getUserTemplatesRoute, (c) => {
-  const auth = getAuth(c);
+const getTemplateRoute = createRoute({
+  method: "get",
+  path: "/{id}",
+  request: {
+    params: z.object({
+      id: z.coerce.number().openapi({
+        param: {
+          name: "id",
+          in: "path",
+        },
+        example: 1,
+      }),
+    }),
+  },
+  responses: {
+    200: {
+      content: {
+        "application/json": {
+          schema: z.object({
+            success: z.boolean(),
+            data: TemplateSchema,
+          }),
+        },
+      },
+      description: "Template retrieved",
+    },
+    401: {
+      description: "Unauthorized",
+    },
+    404: {
+      description: "Template not found or not owned by user",
+    },
+  },
+});
 
+const createTemplateRoute = createRoute({
+  method: "post",
+  path: "/",
+  request: {
+    body: {
+      content: {
+        "application/json": {
+          schema: CreateTemplateSchema,
+        },
+      },
+    },
+  },
+  responses: {
+    201: {
+      content: {
+        "application/json": {
+          schema: z.object({
+            success: z.boolean(),
+            data: TemplateSchema,
+          }),
+        },
+      },
+      description: "Template created",
+    },
+    401: {
+      description: "Unauthorized",
+    },
+    500: {
+      description: "Internal Server Error",
+    },
+  },
+});
+
+const updateTemplateRoute = createRoute({
+  method: "patch",
+  path: "/{id}",
+  request: {
+    params: z.object({
+      id: z.coerce.number().openapi({
+        param: {
+          name: "id",
+          in: "path",
+        },
+        example: 1,
+      }),
+    }),
+    body: {
+      content: {
+        "application/json": {
+          schema: UpdateTemplateSchema,
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      content: {
+        "application/json": {
+          schema: z.object({
+            success: z.boolean(),
+            data: TemplateSchema,
+          }),
+        },
+      },
+      description: "Template updated",
+    },
+    401: {
+      description: "Unauthorized",
+    },
+    404: {
+      description: "Template not found or not owned by user",
+    },
+    500: {
+      description: "Internal Server Error",
+    },
+  },
+});
+
+const deleteTemplateRoute = createRoute({
+  method: "delete",
+  path: "/{id}",
+  request: {
+    params: z.object({
+      id: z.coerce.number().openapi({
+        param: {
+          name: "id",
+          in: "path",
+        },
+        example: 1,
+      }),
+    }),
+  },
+  responses: {
+    200: {
+      content: {
+        "application/json": {
+          schema: z.object({
+            success: z.boolean(),
+          }),
+        },
+      },
+      description: "Template deleted",
+    },
+    401: {
+      description: "Unauthorized",
+    },
+    500: {
+      description: "Internal Server Error",
+    },
+  },
+});
+
+// --- Handlers ---
+
+templates.openapi(listTemplatesRoute, async (c) => {
+  const auth = getAuth(c);
   if (!auth?.userId) {
     return c.json({ message: "Unauthorized" }, 401);
   }
 
-  return c.json(USER_TEMPLATES);
+  const { page, per_page } = c.req.valid("query");
+
+  const results = await db(c.env.DB)
+    .table("templates")
+    .where("user_id", auth.userId)
+    .orderBy("created_at", "desc")
+    .paginate(page, per_page);
+
+  return c.json({
+    success: true,
+    data: results.data,
+    meta: results.meta,
+  });
+});
+
+templates.openapi(getTemplateRoute, async (c) => {
+  const auth = getAuth(c);
+  if (!auth?.userId) {
+    return c.json({ message: "Unauthorized" }, 401);
+  }
+
+  const { id } = c.req.valid("param");
+
+  const template = await db(c.env.DB)
+    .table("templates")
+    .where("id", id)
+    .where("user_id", auth.userId)
+    .select(["id", "name", "description", "user_id", "html_content", "created_at", "updated_at"])
+    .get();
+
+  if (!template || template.length === 0) {
+    return c.json({ message: "Template not found" }, 404);
+  }
+
+  return c.json({
+    success: true,
+    data: template[0],
+  });
+});
+
+templates.openapi(createTemplateRoute, async (c) => {
+  const auth = getAuth(c);
+  if (!auth?.userId) {
+    return c.json({ message: "Unauthorized" }, 401);
+  }
+
+  const { name, description, html_content } = c.req.valid("json");
+
+  const now = Math.floor(Date.now() / 1000);
+
+  try {
+    const result = await c.env.DB.prepare(
+      "INSERT INTO templates (name, description, user_id, html_content, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)"
+    )
+      .bind(name, description || null, auth.userId, html_content, now, now)
+      .run();
+
+    // Fetch the created template
+    const created = await c.env.DB.prepare(
+      "SELECT id, name, description, user_id, html_content, created_at, updated_at FROM templates WHERE id = ?"
+    )
+      .bind(result.meta.last_row_id)
+      .first<Template>();
+
+    return c.json(
+      {
+        success: true,
+        data: created,
+      },
+      201
+    );
+  } catch (e) {
+    console.error(e);
+    return c.json({ message: "Failed to create template" }, 500);
+  }
+});
+
+templates.openapi(updateTemplateRoute, async (c) => {
+  const auth = getAuth(c);
+  if (!auth?.userId) {
+    return c.json({ message: "Unauthorized" }, 401);
+  }
+
+  const { id } = c.req.valid("param");
+  const updates = c.req.valid("json");
+
+  try {
+    // Check ownership
+    const existing = await c.env.DB.prepare("SELECT id FROM templates WHERE id = ? AND user_id = ?")
+      .bind(id, auth.userId)
+      .first<{ id: number }>();
+
+    if (!existing) {
+      return c.json({ message: "Template not found" }, 404);
+    }
+
+    // Build update query dynamically
+    const updateFields: string[] = [];
+    const values: unknown[] = [];
+
+    if (updates.name !== undefined) {
+      updateFields.push("name = ?");
+      values.push(updates.name);
+    }
+    if (updates.description !== undefined) {
+      updateFields.push("description = ?");
+      values.push(updates.description);
+    }
+    if (updates.html_content !== undefined) {
+      updateFields.push("html_content = ?");
+      values.push(updates.html_content);
+    }
+
+    // Always update updated_at
+    updateFields.push("updated_at = ?");
+    values.push(Math.floor(Date.now() / 1000));
+
+    // Add WHERE clause values
+    values.push(id, auth.userId);
+
+    await c.env.DB.prepare(
+      `UPDATE templates SET ${updateFields.join(", ")} WHERE id = ? AND user_id = ?`
+    )
+      .bind(...values)
+      .run();
+
+    // Fetch updated template
+    const updated = await c.env.DB.prepare(
+      "SELECT id, name, description, user_id, html_content, created_at, updated_at FROM templates WHERE id = ?"
+    )
+      .bind(id)
+      .first<Template>();
+
+    return c.json({
+      success: true,
+      data: updated,
+    });
+  } catch (e) {
+    console.error(e);
+    return c.json({ message: "Failed to update template" }, 500);
+  }
+});
+
+templates.openapi(deleteTemplateRoute, async (c) => {
+  const auth = getAuth(c);
+  if (!auth?.userId) {
+    return c.json({ message: "Unauthorized" }, 401);
+  }
+
+  const { id } = c.req.valid("param");
+
+  try {
+    // Delete (idempotent - success even if already deleted)
+    await c.env.DB.prepare("DELETE FROM templates WHERE id = ? AND user_id = ?")
+      .bind(id, auth.userId)
+      .run();
+
+    return c.json({
+      success: true,
+    });
+  } catch (e) {
+    console.error(e);
+    return c.json({ message: "Failed to delete template" }, 500);
+  }
 });
 
 export default templates;
