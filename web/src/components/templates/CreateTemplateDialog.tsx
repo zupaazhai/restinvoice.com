@@ -94,7 +94,7 @@ export function CreateTemplateDialog({ onTemplateCreated }: CreateTemplateDialog
 					Create Template
 				</Button>
 			</DialogTrigger>
-			<DialogContent className="sm:max-w-[425px]">
+			<DialogContent className="sm:max-w-[500px]">
 				<DialogHeader>
 					<DialogTitle>Create New Template</DialogTitle>
 					<DialogDescription>
