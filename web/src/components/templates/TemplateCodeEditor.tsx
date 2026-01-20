@@ -1,10 +1,42 @@
 import { Editor, type Monaco } from "@monaco-editor/react";
-import { Loader2 } from "lucide-react";
+
 import { Dracula } from "@/lib/monaco-themes";
+
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface TemplateCodeEditorProps {
 	value: string;
 	onChange: (value: string) => void;
+}
+
+function TemplateCodeEditorSkeleton() {
+	return (
+		<div className="flex h-full w-full flex-col bg-[#282a36] p-4">
+			<div className="flex flex-1 gap-4">
+				{/* Line Numbers */}
+				<div className="flex w-8 flex-col gap-1.5 pt-1 text-right">
+					{Array.from({ length: 20 }).map((_, i) => (
+						<Skeleton
+							key={i}
+							className="ml-auto h-4 w-4 bg-white/10"
+						/>
+					))}
+				</div>
+				{/* Code Lines */}
+				<div className="flex flex-1 flex-col gap-1.5 pt-1">
+					{Array.from({ length: 20 }).map((_, i) => (
+						<Skeleton
+							key={i}
+							className="h-4 bg-white/10"
+							style={{
+								width: `${Math.max(20, Math.random() * 60 + 20)}%`,
+							}}
+						/>
+					))}
+				</div>
+			</div>
+		</div>
+	);
 }
 
 export function TemplateCodeEditor({ value, onChange }: TemplateCodeEditorProps) {
@@ -26,11 +58,7 @@ export function TemplateCodeEditor({ value, onChange }: TemplateCodeEditorProps)
 					value={value}
 					beforeMount={handleEditorWillMount}
 					onChange={(value) => onChange(value || "")}
-					loading={
-						<div className="flex h-full w-full items-center justify-center bg-card text-muted-foreground">
-							<Loader2 className="animate-spin" />
-						</div>
-					}
+					loading={<TemplateCodeEditorSkeleton />}
 					options={{
 						minimap: { enabled: true },
 						fontSize: 14,
