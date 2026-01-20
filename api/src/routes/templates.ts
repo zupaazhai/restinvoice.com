@@ -9,6 +9,7 @@ import {
 } from "../models/template";
 import { db } from "../utils/db";
 import { DEFAULT_TEMPLATE_HTML, DEFAULT_TEMPLATE_VARIABLES } from "../utils/defaults";
+import { generateUniqueSlug, isUuid } from "../utils/slug";
 
 const templates = new OpenAPIHono<{
   Bindings: {
@@ -64,16 +65,14 @@ const getTemplateRoute = createRoute({
   path: "/{id}",
   request: {
     params: z.object({
-      id: z
-        .string()
-        .uuid()
-        .openapi({
-          param: {
-            name: "id",
-            in: "path",
-          },
-          example: "123e4567-e89b-12d3-a456-426614174000",
-        }),
+      id: z.string().openapi({
+        param: {
+          name: "id",
+          in: "path",
+        },
+        example: "123e4567-e89b-12d3-a456-426614174000",
+        description: "Template UUID or slug",
+      }),
     }),
   },
   tags: ["Templates"],
@@ -137,16 +136,14 @@ const updateTemplateRoute = createRoute({
   path: "/{id}",
   request: {
     params: z.object({
-      id: z
-        .string()
-        .uuid()
-        .openapi({
-          param: {
-            name: "id",
-            in: "path",
-          },
-          example: "123e4567-e89b-12d3-a456-426614174000",
-        }),
+      id: z.string().openapi({
+        param: {
+          name: "id",
+          in: "path",
+        },
+        example: "123e4567-e89b-12d3-a456-426614174000",
+        description: "Template UUID or slug",
+      }),
     }),
     body: {
       content: {
@@ -186,16 +183,14 @@ const deleteTemplateRoute = createRoute({
   path: "/{id}",
   request: {
     params: z.object({
-      id: z
-        .string()
-        .uuid()
-        .openapi({
-          param: {
-            name: "id",
-            in: "path",
-          },
-          example: "123e4567-e89b-12d3-a456-426614174000",
-        }),
+      id: z.string().openapi({
+        param: {
+          name: "id",
+          in: "path",
+        },
+        example: "123e4567-e89b-12d3-a456-426614174000",
+        description: "Template UUID or slug",
+      }),
     }),
   },
   tags: ["Templates"],
@@ -248,9 +243,9 @@ templates.openapi(listSystemTemplatesRoute, async (c) => {
     return c.json({ message: "Unauthorized" }, 401);
   }
 
-
   const systemTemplate: Template = {
     id: "00000000-0000-0000-0000-000000000001",
+    slug: "standard-invoice-0001",
     name: "Standard Invoice",
     description: "A professional and clean invoice template suitable for most businesses.",
     user_id: "system",
@@ -271,21 +266,44 @@ templates.openapi(getTemplateRoute, async (c) => {
 
   const { id } = c.req.valid("param");
 
-  const template = await db(c.env.DB)
-    .table("templates")
-    .where("id", id)
-    .where("user_id", auth.userId)
-    .select([
-      "id",
-      "name",
-      "description",
-      "user_id",
-      "html_content",
-      "variables",
-      "created_at",
-      "updated_at",
-    ])
-    .get();
+  // Try to find by UUID first, then by slug
+  const idIsUuid = isUuid(id);
+  let template: unknown[] | undefined;
+  if (idIsUuid) {
+    template = await db(c.env.DB)
+      .table("templates")
+      .where("id", id)
+      .where("user_id", auth.userId)
+      .select([
+        "id",
+        "slug",
+        "name",
+        "description",
+        "user_id",
+        "html_content",
+        "variables",
+        "created_at",
+        "updated_at",
+      ])
+      .get();
+  } else {
+    template = await db(c.env.DB)
+      .table("templates")
+      .where("slug", id)
+      .where("user_id", auth.userId)
+      .select([
+        "id",
+        "slug",
+        "name",
+        "description",
+        "user_id",
+        "html_content",
+        "variables",
+        "created_at",
+        "updated_at",
+      ])
+      .get();
+  }
 
   if (!template || template.length === 0) {
     return c.json({ message: "Template not found" }, 404);
@@ -311,15 +329,18 @@ templates.openapi(createTemplateRoute, async (c) => {
     const id = crypto.randomUUID();
     const variablesJson = variables ? JSON.stringify(variables) : null;
 
+    // Auto-generate unique slug (checks duplicates and regenerates if needed)
+    const slug = await generateUniqueSlug(c.env.DB);
+
     await c.env.DB.prepare(
-      "INSERT INTO templates (id, name, description, user_id, html_content, variables, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+      "INSERT INTO templates (id, slug, name, description, user_id, html_content, variables, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
     )
-      .bind(id, name, description || null, auth.userId, html_content, variablesJson, now, now)
+      .bind(id, slug, name, description || null, auth.userId, html_content, variablesJson, now, now)
       .run();
 
     // Fetch the created template
     const created = await c.env.DB.prepare(
-      "SELECT id, name, description, user_id, html_content, variables, created_at, updated_at FROM templates WHERE id = ?"
+      "SELECT id, slug, name, description, user_id, html_content, variables, created_at, updated_at FROM templates WHERE id = ?"
     )
       .bind(id)
       .first<Template>();
@@ -348,8 +369,14 @@ templates.openapi(updateTemplateRoute, async (c) => {
   const updates = c.req.valid("json");
 
   try {
+    // Find by UUID or slug
+    const idIsUuid = isUuid(id);
+    const column = idIsUuid ? "id" : "slug";
+
     // Check ownership
-    const existing = await c.env.DB.prepare("SELECT id FROM templates WHERE id = ? AND user_id = ?")
+    const existing = await c.env.DB.prepare(
+      `SELECT id FROM templates WHERE ${column} = ? AND user_id = ?`
+    )
       .bind(id, auth.userId)
       .first<{ id: string }>();
 
@@ -383,7 +410,7 @@ templates.openapi(updateTemplateRoute, async (c) => {
     values.push(Math.floor(Date.now() / 1000));
 
     // Add WHERE clause values
-    values.push(id, auth.userId);
+    values.push(existing.id, auth.userId);
 
     await c.env.DB.prepare(
       `UPDATE templates SET ${updateFields.join(", ")} WHERE id = ? AND user_id = ?`
@@ -393,9 +420,9 @@ templates.openapi(updateTemplateRoute, async (c) => {
 
     // Fetch updated template
     const updated = await c.env.DB.prepare(
-      "SELECT id, name, description, user_id, html_content, variables, created_at, updated_at FROM templates WHERE id = ?"
+      "SELECT id, slug, name, description, user_id, html_content, variables, created_at, updated_at FROM templates WHERE id = ?"
     )
-      .bind(id)
+      .bind(existing.id)
       .first<Template>();
 
     return c.json({
@@ -417,8 +444,12 @@ templates.openapi(deleteTemplateRoute, async (c) => {
   const { id } = c.req.valid("param");
 
   try {
+    // Find by UUID or slug
+    const idIsUuid = isUuid(id);
+    const column = idIsUuid ? "id" : "slug";
+
     // Delete (idempotent - success even if already deleted)
-    await c.env.DB.prepare("DELETE FROM templates WHERE id = ? AND user_id = ?")
+    await c.env.DB.prepare(`DELETE FROM templates WHERE ${column} = ? AND user_id = ?`)
       .bind(id, auth.userId)
       .run();
 

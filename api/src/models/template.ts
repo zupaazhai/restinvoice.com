@@ -6,6 +6,10 @@ export const TemplateSchema = z.object({
     example: "123e4567-e89b-12d3-a456-426614174000",
     description: "Template ID (UUID)",
   }),
+  slug: z.string().min(1).max(100).openapi({
+    example: "happy-cat-runs-3421",
+    description: "Friendly ID slug (format: word-word-word-####)",
+  }),
   name: z.string().max(150).openapi({
     example: "Modern Invoice",
     description: "Template name (max 150 characters)",
