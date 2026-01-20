@@ -1,4 +1,3 @@
-import { getAuth } from "@hono/clerk-auth";
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import { PaginatedResponseSchema, PaginationQuerySchema } from "../models/pagination";
 import {
@@ -7,6 +6,7 @@ import {
   TemplateSchema,
   UpdateTemplateSchema,
 } from "../models/template";
+import { requireAuth } from "../utils/auth";
 import { db } from "../utils/db";
 import { DEFAULT_TEMPLATE_HTML, DEFAULT_TEMPLATE_VARIABLES } from "../utils/defaults";
 import { generateUniqueSlug, isUuid } from "../utils/slug";
@@ -217,10 +217,7 @@ const deleteTemplateRoute = createRoute({
 // --- Handlers ---
 
 templates.openapi(listTemplatesRoute, async (c) => {
-  const auth = getAuth(c);
-  if (!auth?.userId) {
-    return c.json({ message: "Unauthorized" }, 401);
-  }
+  const auth = requireAuth(c);
 
   const { page, per_page } = c.req.valid("query");
 
@@ -238,10 +235,7 @@ templates.openapi(listTemplatesRoute, async (c) => {
 });
 
 templates.openapi(listSystemTemplatesRoute, async (c) => {
-  const auth = getAuth(c);
-  if (!auth?.userId) {
-    return c.json({ message: "Unauthorized" }, 401);
-  }
+  requireAuth(c);
 
   const systemTemplate: Template = {
     id: "00000000-0000-0000-0000-000000000001",
@@ -259,10 +253,7 @@ templates.openapi(listSystemTemplatesRoute, async (c) => {
 });
 
 templates.openapi(getTemplateRoute, async (c) => {
-  const auth = getAuth(c);
-  if (!auth?.userId) {
-    return c.json({ message: "Unauthorized" }, 401);
-  }
+  const auth = requireAuth(c);
 
   const { id } = c.req.valid("param");
 
@@ -316,10 +307,7 @@ templates.openapi(getTemplateRoute, async (c) => {
 });
 
 templates.openapi(createTemplateRoute, async (c) => {
-  const auth = getAuth(c);
-  if (!auth?.userId) {
-    return c.json({ message: "Unauthorized" }, 401);
-  }
+  const auth = requireAuth(c);
 
   const { name, description, html_content, variables } = c.req.valid("json");
 
@@ -360,10 +348,7 @@ templates.openapi(createTemplateRoute, async (c) => {
 });
 
 templates.openapi(updateTemplateRoute, async (c) => {
-  const auth = getAuth(c);
-  if (!auth?.userId) {
-    return c.json({ message: "Unauthorized" }, 401);
-  }
+  const auth = requireAuth(c);
 
   const { id } = c.req.valid("param");
   const updates = c.req.valid("json");
@@ -436,10 +421,7 @@ templates.openapi(updateTemplateRoute, async (c) => {
 });
 
 templates.openapi(deleteTemplateRoute, async (c) => {
-  const auth = getAuth(c);
-  if (!auth?.userId) {
-    return c.json({ message: "Unauthorized" }, 401);
-  }
+  const auth = requireAuth(c);
 
   const { id } = c.req.valid("param");
 
