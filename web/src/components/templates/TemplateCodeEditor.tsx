@@ -1,8 +1,6 @@
 import { Editor, type Monaco } from "@monaco-editor/react";
-
-import { Dracula } from "@/lib/monaco-themes";
-
 import { Skeleton } from "@/components/ui/skeleton";
+import { Dracula } from "@/lib/monaco-themes";
 
 interface TemplateCodeEditorProps {
 	value: string;
@@ -10,23 +8,25 @@ interface TemplateCodeEditorProps {
 }
 
 function TemplateCodeEditorSkeleton() {
+	// Generate stable IDs for skeleton elements (avoids array index key lint error)
+	const SKELETON_LINE_COUNT = 20;
+	const lineIds = Array.from({ length: SKELETON_LINE_COUNT }, (_, i) => `line-${i}`);
+	const codeLineIds = Array.from({ length: SKELETON_LINE_COUNT }, (_, i) => `code-${i}`);
+
 	return (
 		<div className="flex h-full w-full flex-col bg-[#282a36] p-4">
 			<div className="flex flex-1 gap-4">
 				{/* Line Numbers */}
 				<div className="flex w-8 flex-col gap-1.5 pt-1 text-right">
-					{Array.from({ length: 20 }).map((_, i) => (
-						<Skeleton
-							key={i}
-							className="ml-auto h-4 w-4 bg-white/10"
-						/>
+					{lineIds.map((id) => (
+						<Skeleton key={id} className="ml-auto h-4 w-4 bg-white/10" />
 					))}
 				</div>
 				{/* Code Lines */}
 				<div className="flex flex-1 flex-col gap-1.5 pt-1">
-					{Array.from({ length: 20 }).map((_, i) => (
+					{codeLineIds.map((id) => (
 						<Skeleton
-							key={i}
+							key={id}
 							className="h-4 bg-white/10"
 							style={{
 								width: `${Math.max(20, Math.random() * 60 + 20)}%`,

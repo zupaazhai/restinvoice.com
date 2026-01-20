@@ -39,8 +39,8 @@ export function TemplateCard({ template, linkTo }: TemplateCardProps) {
 					<p className="text-xs text-muted-foreground line-clamp-2">{template.description}</p>
 				</div>
 
-				{/* Template ID with Copy Button */}
-				<CopyInput value={String(template.id)} className="w-full" />
+				{/* Template Friendly ID (Slug) with Copy Button */}
+				<CopyInput value={template.slug} className="w-full" />
 			</CardFooter>
 		</Card>
 	);

@@ -11,6 +11,7 @@ export interface TemplateVariable {
 
 export interface Template {
 	id: string;
+	slug: string;
 	name: string;
 	description?: string;
 	type?: TemplateType; // The API implementation doesn't seem to enforce type enum yet, but let's keep it optional
