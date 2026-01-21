@@ -1,8 +1,8 @@
 import Handlebars from "handlebars";
 
 interface RenderOptions {
-    html: string;
-    variables: Record<string, unknown>;
+	html: string;
+	variables: Record<string, unknown>;
 }
 
 /**
@@ -18,12 +18,12 @@ interface RenderOptions {
  * @returns The rendered HTML string
  */
 export function renderTemplate({ html, variables }: RenderOptions): string {
-    try {
-        const template = Handlebars.compile(html);
-        return template(variables);
-    } catch (error) {
-        console.error("Template rendering failed:", error);
-        // Return original HTML if compilation fails to prevent blank previews
-        return html;
-    }
+	try {
+		const template = Handlebars.compile(html);
+		return template(variables);
+	} catch (error) {
+		console.error("Template rendering failed:", error);
+		// Return original HTML if compilation fails to prevent blank previews
+		return html;
+	}
 }

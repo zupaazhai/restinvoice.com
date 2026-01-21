@@ -1,4 +1,7 @@
-import { FileText, ImageIcon, Palette, Type } from "lucide-react";
+import { Calendar, Clock, FileText, ImageIcon, Palette, Type } from "lucide-react";
+import { ColorPicker } from "@/components/ui/color-picker";
+import { DatePicker } from "@/components/ui/date-picker";
+import { DateTimePicker } from "@/components/ui/datetime-picker";
 import { Input } from "@/components/ui/input";
 import type { TemplateVariable } from "@/types/template.types";
 
@@ -10,6 +13,8 @@ interface TemplateVariablesContentProps {
 const getVariableIcon = (variable: TemplateVariable) => {
 	if (variable.type === "color") return Palette;
 	if (variable.type === "image") return ImageIcon;
+	if (variable.type === "date") return Calendar;
+	if (variable.type === "datetime") return Clock;
 	return Type;
 };
 
@@ -49,31 +54,41 @@ export function TemplateVariablesContent({
 								</code>
 							</div>
 
-							{variable.type === "color" ? (
-								<div className="flex gap-2">
-									<input
-										id={`var-${variable.id}`}
-										type="color"
-										value={variable.value}
-										onChange={(e) => onVariableChange(variable.id, e.target.value)}
-										className="h-9 w-10 cursor-pointer rounded-md border-0 bg-transparent p-0"
-									/>
-									<Input
-										type="text"
-										value={variable.value}
-										onChange={(e) => onVariableChange(variable.id, e.target.value)}
-										className="flex-1"
-										aria-label={`${variable.label} hex value`}
-									/>
-								</div>
-							) : (
-								<Input
-									id={`var-${variable.id}`}
-									type="text"
-									value={variable.value}
-									onChange={(e) => onVariableChange(variable.id, e.target.value)}
-								/>
-							)}
+							{(() => {
+								switch (variable.type) {
+									case "color":
+										return (
+											<ColorPicker
+												value={variable.value}
+												onChange={(value) => onVariableChange(variable.id, value)}
+											/>
+										);
+									case "date":
+										return (
+											<DatePicker
+												value={variable.value}
+												onChange={(value) => onVariableChange(variable.id, value)}
+											/>
+										);
+									case "datetime":
+										return (
+											<DateTimePicker
+												value={variable.value}
+												onChange={(value) => onVariableChange(variable.id, value)}
+											/>
+										);
+									case "text":
+									default:
+										return (
+											<Input
+												id={`var-${variable.id}`}
+												type="text"
+												value={variable.value}
+												onChange={(e) => onVariableChange(variable.id, e.target.value)}
+											/>
+										);
+								}
+							})()}
 						</div>
 					);
 				})}

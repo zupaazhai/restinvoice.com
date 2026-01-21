@@ -269,58 +269,58 @@ export const DEFAULT_TEMPLATE_HTML = `<!DOCTYPE html>
 </html>`;
 
 export const DEFAULT_TEMPLATE_VARIABLES: TemplateVariable[] = [
-    {
-        id: "primary_color",
-        label: "Primary Color",
-        type: "color",
-        value: "#0087C3",
-    },
-    {
-        id: "invoice_number",
-        label: "Invoice Number",
-        type: "text",
-        value: "10234",
-    },
-    {
-        id: "created_date",
-        label: "Created Date",
-        type: "text",
-        value: "January 19, 2026",
-    },
-    {
-        id: "due_date",
-        label: "Due Date",
-        type: "text",
-        value: "February 01, 2026",
-    },
-    {
-        id: "company_name",
-        label: "Company Name",
-        type: "text",
-        value: "Acme Corp Solutions",
-    },
-    {
-        id: "company_address",
-        label: "Company Address",
-        type: "text",
-        value: "1234 Innovation Drive\nTech City, CA 94000",
-    },
-    {
-        id: "company_email",
-        label: "Company Email",
-        type: "text",
-        value: "support@acme.example.com",
-    },
-    {
-        id: "client_name",
-        label: "Client Name",
-        type: "text",
-        value: "John Doe",
-    },
-    {
-        id: "client_address",
-        label: "Client Address",
-        type: "text",
-        value: "555 Main Street\nApartment 4B\nNew York, NY 10012",
-    },
+	{
+		id: "primary_color",
+		label: "Primary Color",
+		type: "color",
+		value: "#0087C3",
+	},
+	{
+		id: "invoice_number",
+		label: "Invoice Number",
+		type: "text",
+		value: "10234",
+	},
+	{
+		id: "created_date",
+		label: "Created Date",
+		type: "date",
+		value: "2026-01-19",
+	},
+	{
+		id: "due_date",
+		label: "Due Date",
+		type: "date",
+		value: "2026-02-01",
+	},
+	{
+		id: "company_name",
+		label: "Company Name",
+		type: "text",
+		value: "Acme Corp Solutions",
+	},
+	{
+		id: "company_address",
+		label: "Company Address",
+		type: "text",
+		value: "1234 Innovation Drive\nTech City, CA 94000",
+	},
+	{
+		id: "company_email",
+		label: "Company Email",
+		type: "text",
+		value: "support@acme.example.com",
+	},
+	{
+		id: "client_name",
+		label: "Client Name",
+		type: "text",
+		value: "John Doe",
+	},
+	{
+		id: "client_address",
+		label: "Client Address",
+		type: "text",
+		value: "555 Main Street\nApartment 4B\nNew York, NY 10012",
+	},
 ];

@@ -60,9 +60,7 @@ export function TemplateEditorPage() {
 
 	// Render template with Handlebars
 	const renderedHtml = useMemo(() => {
-		const variablesRecord = Object.fromEntries(
-			variables.map((v) => [v.id, v.value])
-		);
+		const variablesRecord = Object.fromEntries(variables.map((v) => [v.id, v.value]));
 		return renderTemplate({ html: templateHtml, variables: variablesRecord });
 	}, [templateHtml, variables]);
 

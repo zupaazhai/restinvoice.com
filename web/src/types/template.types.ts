@@ -1,6 +1,6 @@
 export type TemplateType = "invoice" | "receipt";
 
-export type TemplateVariableType = "color" | "text" | "image";
+export type TemplateVariableType = "color" | "text" | "date" | "datetime" | "image";
 
 export interface TemplateVariable {
 	id: string;

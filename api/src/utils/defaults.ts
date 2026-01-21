@@ -267,13 +267,49 @@ export const DEFAULT_TEMPLATE_HTML = `<!DOCTYPE html>
 </html>`;
 
 export const DEFAULT_TEMPLATE_VARIABLES = {
-    primary_color: "#0087C3",
-    invoice_number: "10234",
-    created_date: "January 19, 2026",
-    due_date: "February 01, 2026",
-    company_name: "Acme Corp Solutions",
-    company_address: "1234 Innovation Drive\nTech City, CA 94000",
-    company_email: "support@acme.example.com",
-    client_name: "John Doe",
-    client_address: "555 Main Street\nApartment 4B\nNew York, NY 10012",
+    primary_color: {
+        value: "#0087C3",
+        type: "color",
+        label: "Primary Color",
+    },
+    invoice_number: {
+        value: "10234",
+        type: "text",
+        label: "Invoice Number",
+    },
+    created_date: {
+        value: "2026-01-19",
+        type: "date",
+        label: "Created Date",
+    },
+    due_date: {
+        value: "2026-02-01",
+        type: "date",
+        label: "Due Date",
+    },
+    company_name: {
+        value: "Acme Corp Solutions",
+        type: "text",
+        label: "Company Name",
+    },
+    company_address: {
+        value: "1234 Innovation Drive\nTech City, CA 94000",
+        type: "text",
+        label: "Company Address",
+    },
+    company_email: {
+        value: "support@acme.example.com",
+        type: "text",
+        label: "Company Email",
+    },
+    client_name: {
+        value: "John Doe",
+        type: "text",
+        label: "Client Name",
+    },
+    client_address: {
+        value: "555 Main Street\nApartment 4B\nNew York, NY 10012",
+        type: "text",
+        label: "Client Address",
+    },
 };
