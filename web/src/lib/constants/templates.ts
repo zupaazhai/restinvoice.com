@@ -149,9 +149,9 @@ export const DEFAULT_TEMPLATE_HTML = `<!DOCTYPE html>
                 <td colspan="2">
                     <table>
                         <tr>
-                            <td class="company-info">
-                                <strong>{{company_name}}</strong><br>
-                                {{company_address}}<br>
+                            <td class="company-info" style="white-space: pre-line;">
+                                <strong>{{company_name}}</strong>
+                                {{company_address}}
                                 {{company_email}}
                             </td>
                             <td>
@@ -170,14 +170,14 @@ export const DEFAULT_TEMPLATE_HTML = `<!DOCTYPE html>
                 <td colspan="2">
                     <table class="information-table">
                         <tr>
-                            <td width="50%">
-                                <span class="info-label">Bill To</span><br>
-                                <strong>{{client_name}}</strong><br>
+                            <td width="50%" style="white-space: pre-line;">
+                                <span class="info-label">Bill To</span>
+                                <strong>{{client_name}}</strong>
                                 {{client_address}}
                             </td>
-                            <td width="50%">
-                                <span class="info-label">Ship To</span><br>
-                                <strong>{{client_name}}</strong><br>
+                            <td width="50%" style="white-space: pre-line;">
+                                <span class="info-label">Ship To</span>
+                                <strong>{{client_name}}</strong>
                                 {{client_address}}
                             </td>
                         </tr>
@@ -269,58 +269,58 @@ export const DEFAULT_TEMPLATE_HTML = `<!DOCTYPE html>
 </html>`;
 
 export const DEFAULT_TEMPLATE_VARIABLES: TemplateVariable[] = [
-	{
-		id: "primary_color",
-		label: "Primary Color",
-		type: "color",
-		value: "#0087C3",
-	},
-	{
-		id: "invoice_number",
-		label: "Invoice Number",
-		type: "text",
-		value: "10234",
-	},
-	{
-		id: "created_date",
-		label: "Created Date",
-		type: "text",
-		value: "January 19, 2026",
-	},
-	{
-		id: "due_date",
-		label: "Due Date",
-		type: "text",
-		value: "February 01, 2026",
-	},
-	{
-		id: "company_name",
-		label: "Company Name",
-		type: "text",
-		value: "Acme Corp Solutions",
-	},
-	{
-		id: "company_address",
-		label: "Company Address",
-		type: "text",
-		value: "1234 Innovation Drive<br>Tech City, CA 94000",
-	},
-	{
-		id: "company_email",
-		label: "Company Email",
-		type: "text",
-		value: "support@acme.example.com",
-	},
-	{
-		id: "client_name",
-		label: "Client Name",
-		type: "text",
-		value: "John Doe",
-	},
-	{
-		id: "client_address",
-		label: "Client Address",
-		type: "text",
-		value: "555 Main Street<br>Apartment 4B<br>New York, NY 10012",
-	},
+    {
+        id: "primary_color",
+        label: "Primary Color",
+        type: "color",
+        value: "#0087C3",
+    },
+    {
+        id: "invoice_number",
+        label: "Invoice Number",
+        type: "text",
+        value: "10234",
+    },
+    {
+        id: "created_date",
+        label: "Created Date",
+        type: "text",
+        value: "January 19, 2026",
+    },
+    {
+        id: "due_date",
+        label: "Due Date",
+        type: "text",
+        value: "February 01, 2026",
+    },
+    {
+        id: "company_name",
+        label: "Company Name",
+        type: "text",
+        value: "Acme Corp Solutions",
+    },
+    {
+        id: "company_address",
+        label: "Company Address",
+        type: "text",
+        value: "1234 Innovation Drive\nTech City, CA 94000",
+    },
+    {
+        id: "company_email",
+        label: "Company Email",
+        type: "text",
+        value: "support@acme.example.com",
+    },
+    {
+        id: "client_name",
+        label: "Client Name",
+        type: "text",
+        value: "John Doe",
+    },
+    {
+        id: "client_address",
+        label: "Client Address",
+        type: "text",
+        value: "555 Main Street\nApartment 4B\nNew York, NY 10012",
+    },
 ];

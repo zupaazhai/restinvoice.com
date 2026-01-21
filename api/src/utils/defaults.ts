@@ -147,9 +147,9 @@ export const DEFAULT_TEMPLATE_HTML = `<!DOCTYPE html>
                 <td colspan="2">
                     <table>
                         <tr>
-                            <td class="company-info">
-                                <strong>{{company_name}}</strong><br>
-                                {{company_address}}<br>
+                            <td class="company-info" style="white-space: pre-line;">
+                                <strong>{{company_name}}</strong>
+                                {{company_address}}
                                 {{company_email}}
                             </td>
                             <td>
@@ -168,14 +168,14 @@ export const DEFAULT_TEMPLATE_HTML = `<!DOCTYPE html>
                 <td colspan="2">
                     <table class="information-table">
                         <tr>
-                            <td width="50%">
-                                <span class="info-label">Bill To</span><br>
-                                <strong>{{client_name}}</strong><br>
+                            <td width="50%" style="white-space: pre-line;">
+                                <span class="info-label">Bill To</span>
+                                <strong>{{client_name}}</strong>
                                 {{client_address}}
                             </td>
-                            <td width="50%">
-                                <span class="info-label">Ship To</span><br>
-                                <strong>{{client_name}}</strong><br>
+                            <td width="50%" style="white-space: pre-line;">
+                                <span class="info-label">Ship To</span>
+                                <strong>{{client_name}}</strong>
                                 {{client_address}}
                             </td>
                         </tr>
@@ -267,13 +267,13 @@ export const DEFAULT_TEMPLATE_HTML = `<!DOCTYPE html>
 </html>`;
 
 export const DEFAULT_TEMPLATE_VARIABLES = {
-  primary_color: "#0087C3",
-  invoice_number: "10234",
-  created_date: "January 19, 2026",
-  due_date: "February 01, 2026",
-  company_name: "Acme Corp Solutions",
-  company_address: "1234 Innovation Drive<br>Tech City, CA 94000",
-  company_email: "support@acme.example.com",
-  client_name: "John Doe",
-  client_address: "555 Main Street<br>Apartment 4B<br>New York, NY 10012",
+    primary_color: "#0087C3",
+    invoice_number: "10234",
+    created_date: "January 19, 2026",
+    due_date: "February 01, 2026",
+    company_name: "Acme Corp Solutions",
+    company_address: "1234 Innovation Drive\nTech City, CA 94000",
+    company_email: "support@acme.example.com",
+    client_name: "John Doe",
+    client_address: "555 Main Street\nApartment 4B\nNew York, NY 10012",
 };
