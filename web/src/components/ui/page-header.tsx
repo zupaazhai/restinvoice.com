@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import type { ReactNode } from "react";
+import { type ReactNode, useEffect } from "react";
 
 interface PageHeaderProps {
 	icon: LucideIcon;
@@ -9,6 +9,10 @@ interface PageHeaderProps {
 }
 
 export function PageHeader({ icon: Icon, title, description, action }: PageHeaderProps) {
+	useEffect(() => {
+		document.title = `${title} - RestInvoice`;
+	}, [title]);
+
 	return (
 		<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 			<div className="flex items-center gap-3">
