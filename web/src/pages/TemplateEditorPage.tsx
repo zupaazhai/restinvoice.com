@@ -15,6 +15,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { templatesApi } from "@/lib/api/modules/templates";
+import { renderTemplate } from "@/lib/templateRenderer";
 import {
 	transformVariablesToArray,
 	transformVariablesToRecord,
@@ -57,16 +58,12 @@ export function TemplateEditorPage() {
 		fetchTemplate();
 	}, [isLoaded, id, getToken, navigate]);
 
-	// Inject variables into the template string
+	// Render template with Handlebars
 	const renderedHtml = useMemo(() => {
-		let result = templateHtml;
-		for (const v of variables) {
-			// Basic replacement for now.
-			// In a real templating engine, escaping would be needed.
-			const regex = new RegExp(`{{${v.id}}}`, "g");
-			result = result.replace(regex, v.value);
-		}
-		return result;
+		const variablesRecord = Object.fromEntries(
+			variables.map((v) => [v.id, v.value])
+		);
+		return renderTemplate({ html: templateHtml, variables: variablesRecord });
 	}, [templateHtml, variables]);
 
 	const handleVariableChange = (id: string, value: string) => {
