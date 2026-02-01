@@ -96,6 +96,10 @@ export function TemplateEditorPage() {
 		setVariables((prev) => prev.filter((v) => v.id !== id));
 	};
 
+	const handleReorderVariables = (reorderedVariables: TemplateVariable[]) => {
+		setVariables(reorderedVariables);
+	};
+
 	const handleSave = async () => {
 		if (!id) return;
 		try {
@@ -186,6 +190,7 @@ export function TemplateEditorPage() {
 										onAddVariable={handleAddVariable}
 										onEditVariable={handleEditVariable}
 										onDeleteVariable={handleDeleteVariable}
+										onReorderVariables={handleReorderVariables}
 									/>
 								</SheetContent>
 							</Sheet>
@@ -216,6 +221,7 @@ export function TemplateEditorPage() {
 								onAddVariable={handleAddVariable}
 								onEditVariable={handleEditVariable}
 								onDeleteVariable={handleDeleteVariable}
+								onReorderVariables={handleReorderVariables}
 							/>
 						</div>
 					</>

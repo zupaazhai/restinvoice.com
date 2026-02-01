@@ -1,11 +1,24 @@
-import { Calendar, Clock, FileText, ImageIcon, Palette, Pencil, Type } from "lucide-react";
+import {
+	closestCenter,
+	DndContext,
+	type DragEndEvent,
+	DragOverlay,
+	type DragStartEvent,
+	KeyboardSensor,
+	PointerSensor,
+	useSensor,
+	useSensors,
+} from "@dnd-kit/core";
+import {
+	arrayMove,
+	SortableContext,
+	sortableKeyboardCoordinates,
+	verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { Calendar, Clock, FileText, GripVertical, ImageIcon, Palette, Type } from "lucide-react";
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { ColorPicker } from "@/components/ui/color-picker";
-import { DatePicker } from "@/components/ui/date-picker";
-import { DateTimePicker } from "@/components/ui/datetime-picker";
-import { Input } from "@/components/ui/input";
 import type { TemplateVariable } from "@/types/template.types";
+import { SortableVariableItem } from "./SortableVariableItem";
 import { VariableDialog } from "./VariableDialog";
 
 interface TemplateVariablesContentProps {
@@ -14,6 +27,7 @@ interface TemplateVariablesContentProps {
 	onAddVariable: (variable: Omit<TemplateVariable, "value">) => void;
 	onEditVariable: (oldId: string, variable: Omit<TemplateVariable, "value">) => void;
 	onDeleteVariable: (id: string) => void;
+	onReorderVariables?: (variables: TemplateVariable[]) => void;
 }
 
 const getVariableIcon = (variable: TemplateVariable) => {
@@ -25,6 +39,27 @@ const getVariableIcon = (variable: TemplateVariable) => {
 };
 
 /**
+ * Non-sortable item for drag overlay (visual feedback while dragging)
+ */
+function DragOverlayItem({ variable }: { variable: TemplateVariable }) {
+	const Icon = getVariableIcon(variable);
+	return (
+		<div className="space-y-2 rounded-lg border border-border bg-card p-2 shadow-lg">
+			<div className="flex items-center justify-between gap-2">
+				<div className="flex flex-1 items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+					<GripVertical className="h-3.5 w-3.5 shrink-0 text-muted-foreground/70" />
+					<Icon className="h-3 w-3 shrink-0" />
+					<span className="truncate">{variable.label}</span>
+				</div>
+				<code className="shrink-0 rounded-md bg-primary/10 px-1.5 py-0.5 font-mono text-[10px] text-primary">
+					{`{{${variable.id}}}`}
+				</code>
+			</div>
+		</div>
+	);
+}
+
+/**
  * Reusable content component for template variables form.
  * Used in both desktop sidebar and mobile Sheet.
  */
@@ -34,9 +69,39 @@ export function TemplateVariablesContent({
 	onAddVariable,
 	onEditVariable,
 	onDeleteVariable,
+	onReorderVariables,
 }: TemplateVariablesContentProps) {
 	const [editingVariable, setEditingVariable] = useState<TemplateVariable | null>(null);
 	const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+	const [activeId, setActiveId] = useState<string | null>(null);
+
+	const sensors = useSensors(
+		useSensor(PointerSensor, {
+			activationConstraint: {
+				distance: 8,
+			},
+		}),
+		useSensor(KeyboardSensor, {
+			coordinateGetter: sortableKeyboardCoordinates,
+		})
+	);
+
+	const handleDragStart = (event: DragStartEvent) => {
+		setActiveId(event.active.id as string);
+	};
+
+	const handleDragEnd = (event: DragEndEvent) => {
+		const { active, over } = event;
+
+		if (over && active.id !== over.id) {
+			const oldIndex = variables.findIndex((v) => v.id === active.id);
+			const newIndex = variables.findIndex((v) => v.id === over.id);
+			const reorderedVariables = arrayMove(variables, oldIndex, newIndex);
+			onReorderVariables?.(reorderedVariables);
+		}
+
+		setActiveId(null);
+	};
 
 	const handleEditClick = (variable: TemplateVariable) => {
 		setEditingVariable(variable);
@@ -59,6 +124,8 @@ export function TemplateVariablesContent({
 		setEditingVariable(null);
 	};
 
+	const activeVariable = activeId ? variables.find((v) => v.id === activeId) : null;
+
 	return (
 		<>
 			<div className="border-b border-border p-4">
@@ -66,7 +133,7 @@ export function TemplateVariablesContent({
 					<FileText className="h-4 w-4 text-muted-foreground" />
 					Template Variables
 				</h3>
-				<p className="mt-1 text-xs text-muted-foreground">Inject dynamic values for testing</p>
+				<p className="mt-1 text-xs text-muted-foreground">Drag labels to reorder variables</p>
 			</div>
 
 			<div className="flex-1 space-y-4 overflow-y-auto p-4">
@@ -85,74 +152,36 @@ export function TemplateVariablesContent({
 					trigger={null}
 				/>
 
-				{variables.map((variable) => {
-					const Icon = getVariableIcon(variable);
-					return (
-						<div key={variable.id} className="space-y-2">
-							<div className="flex items-center justify-between">
-								<label
-									htmlFor={`var-${variable.id}`}
-									className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-muted-foreground"
-								>
-									<Icon className="h-3 w-3" />
-									{variable.label}
-								</label>
-								<code className="rounded-md bg-primary/10 px-1.5 py-0.5 font-mono text-[10px] text-primary">
-									{`{{${variable.id}}}`}
-								</code>
+				{/* Sortable Variables List */}
+				{variables.length > 0 && (
+					<DndContext
+						sensors={sensors}
+						collisionDetection={closestCenter}
+						onDragStart={handleDragStart}
+						onDragEnd={handleDragEnd}
+					>
+						<SortableContext
+							items={variables.map((v) => v.id)}
+							strategy={verticalListSortingStrategy}
+						>
+							<div className="space-y-1">
+								{variables.map((variable) => (
+									<SortableVariableItem
+										key={variable.id}
+										variable={variable}
+										onVariableChange={onVariableChange}
+										onEditClick={handleEditClick}
+										getVariableIcon={getVariableIcon}
+									/>
+								))}
 							</div>
+						</SortableContext>
 
-							<div className="flex items-center gap-2">
-								<div className="flex-1">
-									{(() => {
-										switch (variable.type) {
-											case "color":
-												return (
-													<ColorPicker
-														value={variable.value}
-														onChange={(value) => onVariableChange(variable.id, value)}
-													/>
-												);
-											case "date":
-												return (
-													<DatePicker
-														value={variable.value}
-														onChange={(value) => onVariableChange(variable.id, value)}
-													/>
-												);
-											case "datetime":
-												return (
-													<DateTimePicker
-														value={variable.value}
-														onChange={(value) => onVariableChange(variable.id, value)}
-													/>
-												);
-											default:
-												return (
-													<Input
-														id={`var-${variable.id}`}
-														type="text"
-														value={variable.value}
-														onChange={(e) => onVariableChange(variable.id, e.target.value)}
-													/>
-												);
-										}
-									})()}
-								</div>
-								{/* Edit button for variable */}
-								<Button
-									variant="ghost"
-									size="icon"
-									className="h-8 w-8 shrink-0"
-									onClick={() => handleEditClick(variable)}
-								>
-									<Pencil className="h-4 w-4" />
-									<span className="sr-only">Edit {variable.label}</span>
-								</Button>
-							</div>
-						</div>
-					);
-				})}
+						<DragOverlay>
+							{activeVariable ? <DragOverlayItem variable={activeVariable} /> : null}
+						</DragOverlay>
+					</DndContext>
+				)}
 
 				<div className="mt-6 rounded-xl border border-primary/20 bg-primary/5 p-4">
 					<h4 className="mb-2 flex items-center gap-2 text-xs font-bold text-primary">
@@ -162,7 +191,7 @@ export function TemplateVariablesContent({
 					<p className="text-[11px] leading-relaxed text-muted-foreground">
 						Use double curly braces to insert variables into your HTML. Example:{" "}
 						<code className="rounded bg-muted px-1 py-0.5 font-mono">
-							{'<div style="color: {{primary_color}}>'}
+							{'<div style="color: {{primary_color}}">'}
 						</code>
 					</p>
 				</div>
@@ -177,6 +206,7 @@ interface TemplateVariablesPanelProps {
 	onAddVariable: (variable: Omit<TemplateVariable, "value">) => void;
 	onEditVariable: (oldId: string, variable: Omit<TemplateVariable, "value">) => void;
 	onDeleteVariable: (id: string) => void;
+	onReorderVariables?: (variables: TemplateVariable[]) => void;
 }
 
 /**
@@ -189,6 +219,7 @@ export function TemplateVariablesPanel({
 	onAddVariable,
 	onEditVariable,
 	onDeleteVariable,
+	onReorderVariables,
 }: TemplateVariablesPanelProps) {
 	return (
 		<aside className="flex h-full w-80 flex-col border-l border-border bg-card">
@@ -198,6 +229,7 @@ export function TemplateVariablesPanel({
 				onAddVariable={onAddVariable}
 				onEditVariable={onEditVariable}
 				onDeleteVariable={onDeleteVariable}
+				onReorderVariables={onReorderVariables}
 			/>
 		</aside>
 	);
