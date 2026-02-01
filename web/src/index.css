@@ -138,7 +138,7 @@
 	--accent-foreground: hsl(0 0% 75.6863%);
 	--clerk-accent: var(--accent);
 	--clerk-accent-foreground: var(--accent-foreground);
-	--destructive: hsl(180 17.3913% 45.0980%);
+	--destructive: hsl(0 60% 45%);
 	--destructive-foreground: hsl(270 5.5556% 7.0588%);
 	--border: hsl(0 0% 13.3333%);
 	--input: hsl(0 0% 13.3333%);
