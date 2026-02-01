@@ -2,7 +2,6 @@ import { useAuth } from "@clerk/clerk-react";
 import { Code, Eye, FileEdit, Save, Settings } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-
 import { TemplateCodeEditor } from "@/components/templates/TemplateCodeEditor";
 import { TemplatePreview } from "@/components/templates/TemplatePreview";
 import {
@@ -76,6 +75,25 @@ export function TemplateEditorPage() {
 				value: "", // Default empty value for the new variable
 			},
 		]);
+	};
+
+	const handleEditVariable = (oldId: string, updatedVariable: Omit<TemplateVariable, "value">) => {
+		setVariables((prev) =>
+			prev.map((v) => {
+				if (v.id === oldId) {
+					// Preserve the value when updating
+					return {
+						...updatedVariable,
+						value: v.value,
+					};
+				}
+				return v;
+			})
+		);
+	};
+
+	const handleDeleteVariable = (id: string) => {
+		setVariables((prev) => prev.filter((v) => v.id !== id));
 	};
 
 	const handleSave = async () => {
@@ -166,6 +184,8 @@ export function TemplateEditorPage() {
 										variables={variables}
 										onVariableChange={handleVariableChange}
 										onAddVariable={handleAddVariable}
+										onEditVariable={handleEditVariable}
+										onDeleteVariable={handleDeleteVariable}
 									/>
 								</SheetContent>
 							</Sheet>
@@ -194,6 +214,8 @@ export function TemplateEditorPage() {
 								variables={variables}
 								onVariableChange={handleVariableChange}
 								onAddVariable={handleAddVariable}
+								onEditVariable={handleEditVariable}
+								onDeleteVariable={handleDeleteVariable}
 							/>
 						</div>
 					</>

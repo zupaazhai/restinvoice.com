@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Info, Plus } from "lucide-react";
-import { useState } from "react";
+import { Info, Pencil, Plus, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -32,14 +32,22 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { TemplateVariable, TemplateVariableType } from "@/types/template.types";
 
-interface AddVariableDialogProps {
+type VariableDialogMode = "create" | "edit";
+
+interface VariableDialogProps {
+	mode?: VariableDialogMode;
+	variable?: TemplateVariable;
 	existingVariables: TemplateVariable[];
-	onAddVariable: (variable: Omit<TemplateVariable, "value">) => void;
+	onSave: (variable: Omit<TemplateVariable, "value">) => void;
+	onDelete?: () => void;
+	trigger?: React.ReactNode;
+	open?: boolean;
+	onOpenChange?: (open: boolean) => void;
 }
 
 const variableNameRegex = /^[a-z][a-z0-9_]*$/;
 
-const addVariableSchema = z.object({
+const variableSchema = z.object({
 	label: z.string().min(1, "Label is required").max(100, "Label must be less than 100 characters"),
 	name: z
 		.string()
@@ -49,10 +57,10 @@ const addVariableSchema = z.object({
 			variableNameRegex,
 			"Variable name must start with a lowercase letter and can only contain lowercase letters, numbers, and underscores"
 		),
-	type: z.enum(["text", "date", "datetime", "repeat_items"]),
+	type: z.enum(["text", "date", "datetime", "color", "repeat_items"]),
 });
 
-type AddVariableFormValues = z.infer<typeof addVariableSchema>;
+type VariableFormValues = z.infer<typeof variableSchema>;
 
 interface LabelWithTooltipProps {
 	label: string;
@@ -75,11 +83,24 @@ function LabelWithTooltip({ label, description }: LabelWithTooltipProps) {
 	);
 }
 
-export function AddVariableDialog({ existingVariables, onAddVariable }: AddVariableDialogProps) {
-	const [open, setOpen] = useState(false);
+export function VariableDialog({
+	mode = "create",
+	variable,
+	existingVariables,
+	onSave,
+	onDelete,
+	trigger,
+	open: controlledOpen,
+	onOpenChange: controlledOnOpenChange,
+}: VariableDialogProps) {
+	const [internalOpen, setInternalOpen] = useState(false);
+	const isOpen = controlledOpen ?? internalOpen;
+	const setOpen = controlledOnOpenChange ?? setInternalOpen;
+	const isEditMode = mode === "edit";
+	const originalName = variable?.id;
 
-	const form = useForm<AddVariableFormValues>({
-		resolver: zodResolver(addVariableSchema),
+	const form = useForm<VariableFormValues>({
+		resolver: zodResolver(variableSchema),
 		defaultValues: {
 			label: "",
 			name: "",
@@ -87,21 +108,42 @@ export function AddVariableDialog({ existingVariables, onAddVariable }: AddVaria
 		},
 	});
 
-	const onSubmit = (values: AddVariableFormValues) => {
-		// Check for duplicate variable name
-		const isDuplicate = existingVariables.some(
-			(v) => v.id.toLowerCase() === values.name.toLowerCase()
-		);
+	// Reset form when variable changes or dialog opens
+	useEffect(() => {
+		if (isOpen) {
+			if (isEditMode && variable) {
+				form.reset({
+					label: variable.label,
+					name: variable.id,
+					type: variable.type as VariableFormValues["type"],
+				});
+			} else {
+				form.reset({
+					label: "",
+					name: "",
+					type: "text",
+				});
+			}
+		}
+	}, [isOpen, isEditMode, variable, form]);
 
-		if (isDuplicate) {
-			form.setError("name", {
-				type: "manual",
-				message: "A variable with this name already exists",
-			});
-			return;
+	const onSubmit = (values: VariableFormValues) => {
+		// Check for duplicate variable name (only if name changed in edit mode)
+		if (!isEditMode || values.name !== originalName) {
+			const isDuplicate = existingVariables.some(
+				(v) => v.id.toLowerCase() === values.name.toLowerCase()
+			);
+
+			if (isDuplicate) {
+				form.setError("name", {
+					type: "manual",
+					message: "A variable with this name already exists",
+				});
+				return;
+			}
 		}
 
-		onAddVariable({
+		onSave({
 			id: values.name,
 			label: values.label,
 			type: values.type as TemplateVariableType,
@@ -111,6 +153,11 @@ export function AddVariableDialog({ existingVariables, onAddVariable }: AddVaria
 		form.reset();
 	};
 
+	const handleDelete = () => {
+		onDelete?.();
+		setOpen(false);
+	};
+
 	const handleOpenChange = (newOpen: boolean) => {
 		setOpen(newOpen);
 		if (!newOpen) {
@@ -118,19 +165,32 @@ export function AddVariableDialog({ existingVariables, onAddVariable }: AddVaria
 		}
 	};
 
+	const defaultTrigger = isEditMode ? (
+		<Button variant="ghost" size="icon" className="h-8 w-8">
+			<Pencil className="h-4 w-4" />
+			<span className="sr-only">Edit variable</span>
+		</Button>
+	) : (
+		<Button variant="outline" size="sm" className="w-full">
+			<Plus className="h-4 w-4" />
+			Add Variable
+		</Button>
+	);
+
 	return (
-		<Dialog open={open} onOpenChange={handleOpenChange}>
-			<DialogTrigger asChild>
-				<Button variant="outline" size="sm" className="w-full">
-					<Plus className="h-4 w-4" />
-					Add Variable
-				</Button>
-			</DialogTrigger>
-			<DialogContent className="sm:max-w-[450px]">
+		<Dialog open={isOpen} onOpenChange={handleOpenChange}>
+			{trigger === null ? null : trigger !== undefined ? (
+				<DialogTrigger asChild>{trigger}</DialogTrigger>
+			) : (
+				<DialogTrigger asChild>{defaultTrigger}</DialogTrigger>
+			)}
+			<DialogContent className="sm:max-w-[500px]">
 				<DialogHeader>
-					<DialogTitle>Add New Variable</DialogTitle>
+					<DialogTitle>{isEditMode ? "Edit Variable" : "Add New Variable"}</DialogTitle>
 					<DialogDescription>
-						Create a new template variable to use in your template.
+						{isEditMode
+							? "Update this template variable."
+							: "Create a new template variable to use in your template."}
 					</DialogDescription>
 				</DialogHeader>
 				<Form {...form}>
@@ -186,6 +246,7 @@ export function AddVariableDialog({ existingVariables, onAddVariable }: AddVaria
 											<SelectItem value="text">Text</SelectItem>
 											<SelectItem value="date">Date</SelectItem>
 											<SelectItem value="datetime">Date & Time</SelectItem>
+											<SelectItem value="color">Color</SelectItem>
 											<SelectItem value="repeat_items" disabled>
 												Repeat Items (Coming Soon)
 											</SelectItem>
@@ -195,19 +256,41 @@ export function AddVariableDialog({ existingVariables, onAddVariable }: AddVaria
 								</FormItem>
 							)}
 						/>
-						<DialogFooter className="pt-4">
-							<Button
-								type="button"
-								variant="outline"
-								onClick={() => setOpen(false)}
-								disabled={form.formState.isSubmitting}
-							>
-								Cancel
-							</Button>
-							<Button type="submit" isLoading={form.formState.isSubmitting}>
-								<Plus className="h-4 w-4" />
-								Add Variable
-							</Button>
+						<DialogFooter className="flex-row justify-between gap-2 pt-4">
+							{isEditMode && onDelete && (
+								<Button
+									type="button"
+									variant="destructive"
+									onClick={handleDelete}
+									disabled={form.formState.isSubmitting}
+								>
+									<Trash2 className="h-4 w-4" />
+									Delete
+								</Button>
+							)}
+							<div className="flex flex-1 justify-end gap-2">
+								<Button
+									type="button"
+									variant="outline"
+									onClick={() => setOpen(false)}
+									disabled={form.formState.isSubmitting}
+								>
+									Cancel
+								</Button>
+								<Button type="submit" isLoading={form.formState.isSubmitting}>
+									{isEditMode ? (
+										<>
+											<Pencil className="h-4 w-4" />
+											Update Variable
+										</>
+									) : (
+										<>
+											<Plus className="h-4 w-4" />
+											Add Variable
+										</>
+									)}
+								</Button>
+							</div>
 						</DialogFooter>
 					</form>
 				</Form>

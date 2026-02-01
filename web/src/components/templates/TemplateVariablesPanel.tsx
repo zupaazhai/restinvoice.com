@@ -1,15 +1,19 @@
-import { Calendar, Clock, FileText, ImageIcon, Palette, Type } from "lucide-react";
+import { Calendar, Clock, FileText, ImageIcon, Palette, Pencil, Type } from "lucide-react";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import { ColorPicker } from "@/components/ui/color-picker";
 import { DatePicker } from "@/components/ui/date-picker";
 import { DateTimePicker } from "@/components/ui/datetime-picker";
 import { Input } from "@/components/ui/input";
 import type { TemplateVariable } from "@/types/template.types";
-import { AddVariableDialog } from "./AddVariableDialog";
+import { VariableDialog } from "./VariableDialog";
 
 interface TemplateVariablesContentProps {
 	variables: TemplateVariable[];
 	onVariableChange: (id: string, value: string) => void;
 	onAddVariable: (variable: Omit<TemplateVariable, "value">) => void;
+	onEditVariable: (oldId: string, variable: Omit<TemplateVariable, "value">) => void;
+	onDeleteVariable: (id: string) => void;
 }
 
 const getVariableIcon = (variable: TemplateVariable) => {
@@ -28,7 +32,33 @@ export function TemplateVariablesContent({
 	variables,
 	onVariableChange,
 	onAddVariable,
+	onEditVariable,
+	onDeleteVariable,
 }: TemplateVariablesContentProps) {
+	const [editingVariable, setEditingVariable] = useState<TemplateVariable | null>(null);
+	const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+
+	const handleEditClick = (variable: TemplateVariable) => {
+		setEditingVariable(variable);
+		setIsEditDialogOpen(true);
+	};
+
+	const handleEditSave = (updatedVariable: Omit<TemplateVariable, "value">) => {
+		if (editingVariable) {
+			onEditVariable(editingVariable.id, updatedVariable);
+		}
+		setIsEditDialogOpen(false);
+		setEditingVariable(null);
+	};
+
+	const handleDelete = () => {
+		if (editingVariable) {
+			onDeleteVariable(editingVariable.id);
+		}
+		setIsEditDialogOpen(false);
+		setEditingVariable(null);
+	};
+
 	return (
 		<>
 			<div className="border-b border-border p-4">
@@ -41,7 +71,19 @@ export function TemplateVariablesContent({
 
 			<div className="flex-1 space-y-4 overflow-y-auto p-4">
 				{/* Add Variable Button - before first variable */}
-				<AddVariableDialog existingVariables={variables} onAddVariable={onAddVariable} />
+				<VariableDialog mode="create" existingVariables={variables} onSave={onAddVariable} />
+
+				{/* Edit Dialog - shared for all variables (controlled, no trigger) */}
+				<VariableDialog
+					mode="edit"
+					variable={editingVariable ?? undefined}
+					existingVariables={variables}
+					onSave={handleEditSave}
+					onDelete={handleDelete}
+					open={isEditDialogOpen}
+					onOpenChange={setIsEditDialogOpen}
+					trigger={null}
+				/>
 
 				{variables.map((variable) => {
 					const Icon = getVariableIcon(variable);
@@ -60,40 +102,54 @@ export function TemplateVariablesContent({
 								</code>
 							</div>
 
-							{(() => {
-								switch (variable.type) {
-									case "color":
-										return (
-											<ColorPicker
-												value={variable.value}
-												onChange={(value) => onVariableChange(variable.id, value)}
-											/>
-										);
-									case "date":
-										return (
-											<DatePicker
-												value={variable.value}
-												onChange={(value) => onVariableChange(variable.id, value)}
-											/>
-										);
-									case "datetime":
-										return (
-											<DateTimePicker
-												value={variable.value}
-												onChange={(value) => onVariableChange(variable.id, value)}
-											/>
-										);
-									default:
-										return (
-											<Input
-												id={`var-${variable.id}`}
-												type="text"
-												value={variable.value}
-												onChange={(e) => onVariableChange(variable.id, e.target.value)}
-											/>
-										);
-								}
-							})()}
+							<div className="flex items-center gap-2">
+								<div className="flex-1">
+									{(() => {
+										switch (variable.type) {
+											case "color":
+												return (
+													<ColorPicker
+														value={variable.value}
+														onChange={(value) => onVariableChange(variable.id, value)}
+													/>
+												);
+											case "date":
+												return (
+													<DatePicker
+														value={variable.value}
+														onChange={(value) => onVariableChange(variable.id, value)}
+													/>
+												);
+											case "datetime":
+												return (
+													<DateTimePicker
+														value={variable.value}
+														onChange={(value) => onVariableChange(variable.id, value)}
+													/>
+												);
+											default:
+												return (
+													<Input
+														id={`var-${variable.id}`}
+														type="text"
+														value={variable.value}
+														onChange={(e) => onVariableChange(variable.id, e.target.value)}
+													/>
+												);
+										}
+									})()}
+								</div>
+								{/* Edit button for variable */}
+								<Button
+									variant="ghost"
+									size="icon"
+									className="h-8 w-8 shrink-0"
+									onClick={() => handleEditClick(variable)}
+								>
+									<Pencil className="h-4 w-4" />
+									<span className="sr-only">Edit {variable.label}</span>
+								</Button>
+							</div>
 						</div>
 					);
 				})}
@@ -119,6 +175,8 @@ interface TemplateVariablesPanelProps {
 	variables: TemplateVariable[];
 	onVariableChange: (id: string, value: string) => void;
 	onAddVariable: (variable: Omit<TemplateVariable, "value">) => void;
+	onEditVariable: (oldId: string, variable: Omit<TemplateVariable, "value">) => void;
+	onDeleteVariable: (id: string) => void;
 }
 
 /**
@@ -129,6 +187,8 @@ export function TemplateVariablesPanel({
 	variables,
 	onVariableChange,
 	onAddVariable,
+	onEditVariable,
+	onDeleteVariable,
 }: TemplateVariablesPanelProps) {
 	return (
 		<aside className="flex h-full w-80 flex-col border-l border-border bg-card">
@@ -136,6 +196,8 @@ export function TemplateVariablesPanel({
 				variables={variables}
 				onVariableChange={onVariableChange}
 				onAddVariable={onAddVariable}
+				onEditVariable={onEditVariable}
+				onDeleteVariable={onDeleteVariable}
 			/>
 		</aside>
 	);
