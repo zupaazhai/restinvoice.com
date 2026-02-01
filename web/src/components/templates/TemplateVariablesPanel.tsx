@@ -4,10 +4,12 @@ import { DatePicker } from "@/components/ui/date-picker";
 import { DateTimePicker } from "@/components/ui/datetime-picker";
 import { Input } from "@/components/ui/input";
 import type { TemplateVariable } from "@/types/template.types";
+import { AddVariableDialog } from "./AddVariableDialog";
 
 interface TemplateVariablesContentProps {
 	variables: TemplateVariable[];
 	onVariableChange: (id: string, value: string) => void;
+	onAddVariable: (variable: Omit<TemplateVariable, "value">) => void;
 }
 
 const getVariableIcon = (variable: TemplateVariable) => {
@@ -25,6 +27,7 @@ const getVariableIcon = (variable: TemplateVariable) => {
 export function TemplateVariablesContent({
 	variables,
 	onVariableChange,
+	onAddVariable,
 }: TemplateVariablesContentProps) {
 	return (
 		<>
@@ -37,6 +40,9 @@ export function TemplateVariablesContent({
 			</div>
 
 			<div className="flex-1 space-y-4 overflow-y-auto p-4">
+				{/* Add Variable Button - before first variable */}
+				<AddVariableDialog existingVariables={variables} onAddVariable={onAddVariable} />
+
 				{variables.map((variable) => {
 					const Icon = getVariableIcon(variable);
 					return (
@@ -77,7 +83,6 @@ export function TemplateVariablesContent({
 												onChange={(value) => onVariableChange(variable.id, value)}
 											/>
 										);
-									case "text":
 									default:
 										return (
 											<Input
@@ -113,6 +118,7 @@ export function TemplateVariablesContent({
 interface TemplateVariablesPanelProps {
 	variables: TemplateVariable[];
 	onVariableChange: (id: string, value: string) => void;
+	onAddVariable: (variable: Omit<TemplateVariable, "value">) => void;
 }
 
 /**
@@ -122,10 +128,15 @@ interface TemplateVariablesPanelProps {
 export function TemplateVariablesPanel({
 	variables,
 	onVariableChange,
+	onAddVariable,
 }: TemplateVariablesPanelProps) {
 	return (
 		<aside className="flex h-full w-80 flex-col border-l border-border bg-card">
-			<TemplateVariablesContent variables={variables} onVariableChange={onVariableChange} />
+			<TemplateVariablesContent
+				variables={variables}
+				onVariableChange={onVariableChange}
+				onAddVariable={onAddVariable}
+			/>
 		</aside>
 	);
 }

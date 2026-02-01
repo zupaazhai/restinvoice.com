@@ -68,6 +68,16 @@ export function TemplateEditorPage() {
 		setVariables((prev) => prev.map((v) => (v.id === id ? { ...v, value } : v)));
 	};
 
+	const handleAddVariable = (variable: Omit<TemplateVariable, "value">) => {
+		setVariables((prev) => [
+			...prev,
+			{
+				...variable,
+				value: "", // Default empty value for the new variable
+			},
+		]);
+	};
+
 	const handleSave = async () => {
 		if (!id) return;
 		try {
@@ -155,6 +165,7 @@ export function TemplateEditorPage() {
 									<TemplateVariablesContent
 										variables={variables}
 										onVariableChange={handleVariableChange}
+										onAddVariable={handleAddVariable}
 									/>
 								</SheetContent>
 							</Sheet>
@@ -182,6 +193,7 @@ export function TemplateEditorPage() {
 							<TemplateVariablesPanel
 								variables={variables}
 								onVariableChange={handleVariableChange}
+								onAddVariable={handleAddVariable}
 							/>
 						</div>
 					</>
